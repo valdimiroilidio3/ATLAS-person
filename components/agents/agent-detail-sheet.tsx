@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress';
 import { Input } from '@/components/ui/inputs';
+import { t } from '@/lib/i18n';
 
 export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onClose: () => void }) {
   const { runAgent } = useAtlas();
@@ -34,30 +35,30 @@ export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onCl
         <div className="flex-1 space-y-6 p-5">
           <div className="flex items-center justify-between gap-3">
             <Badge tone={meta.tone} pulse={agent.status === 'running'}>
-              {meta.label}
+              {t(meta.labelKey)}
             </Badge>
             <span className="inline-flex items-center gap-1.5 text-xs text-text-3">
               <ShieldCheck className="h-3.5 w-3.5" />
-              {permissionShort(agent.permissionLevel)} · {PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.name}
+              {permissionShort(agent.permissionLevel)} · {t(PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.nameKey ?? '')}
               {agent.approvalRequired ? ' · approval required' : ' · no approval required'}
             </span>
           </div>
 
           <div>
-            <p className="eyebrow">Purpose</p>
+            <p className="eyebrow">{t('Purpose')}</p>
             <p className="mt-1 text-sm text-text">{agent.purpose}</p>
           </div>
 
           <div>
             <div className="mb-1.5 flex items-center justify-between text-xs">
-              <span className="text-text-3">Current task · {agent.currentTask}</span>
+              <span className="text-text-3">{t('Current task ·')} {agent.currentTask}</span>
               <span className="font-mono tabular text-text-2">{agent.progress}%</span>
             </div>
             <ProgressBar value={agent.progress} tone={agent.status === 'blocked' ? 'error' : 'accent'} />
           </div>
 
           <div>
-            <p className="eyebrow mb-2">Tools</p>
+            <p className="eyebrow mb-2">{t('Tools')}</p>
             <div className="flex flex-wrap gap-1.5">
               {agent.tools.map((t) => (
                 <span
@@ -72,7 +73,7 @@ export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onCl
           </div>
 
           <div>
-            <p className="eyebrow mb-2">Run this agent</p>
+            <p className="eyebrow mb-2">{t('Run this agent')}</p>
             <div className="flex gap-2">
               <Input
                 value={objective}
@@ -81,18 +82,18 @@ export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onCl
                 onKeyDown={(e) => e.key === 'Enter' && handleRun()}
               />
               <Button variant="primary" size="md" onClick={handleRun}>
-                <Play className="h-3.5 w-3.5" /> Run
+                <Play className="h-3.5 w-3.5" /> {t('Run')}
               </Button>
             </div>
             <p className="mt-1.5 text-xs text-text-3">
-              Sensitive steps pause for your approval. Results are logged to Activity.
+              {t('Sensitive steps pause for your approval. Results are logged to Activity.')}
             </p>
           </div>
 
           <div>
-            <p className="eyebrow mb-2">Results</p>
+            <p className="eyebrow mb-2">{t('Results')}</p>
             {agent.results.length === 0 ? (
-              <p className="text-sm text-text-3">No results yet.</p>
+              <p className="text-sm text-text-3">{t('No results yet.')}</p>
             ) : (
               <ul className="space-y-1.5">
                 {agent.results.map((r, i) => (
@@ -107,7 +108,7 @@ export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onCl
 
           {agent.errors.length > 0 && (
             <div>
-              <p className="eyebrow mb-2">Errors</p>
+              <p className="eyebrow mb-2">{t('Errors')}</p>
               <ul className="space-y-1.5">
                 {agent.errors.map((e, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm text-error">
@@ -120,9 +121,9 @@ export function AgentDetailSheet({ agent, onClose }: { agent: Agent | null; onCl
           )}
 
           <div>
-            <p className="eyebrow mb-2">Activity</p>
+            <p className="eyebrow mb-2">{t('Activity')}</p>
             {agent.activity.length === 0 ? (
-              <p className="text-sm text-text-3">No activity yet.</p>
+              <p className="text-sm text-text-3">{t('No activity yet.')}</p>
             ) : (
               <ul className="space-y-2">
                 {agent.activity.map((a, i) => (

@@ -10,6 +10,7 @@ import { deriveNextBestAction } from '@/lib/atlas/engine';
 import { Button } from '@/components/ui/button';
 import { EmptyState } from '@/components/ui/empty-state';
 import { Target } from 'lucide-react';
+import { t } from '@/lib/i18n';
 
 export function NextBestAction() {
   const { state, openExecutionPreview } = useAtlas();
@@ -18,11 +19,11 @@ export function NextBestAction() {
   if (!nba) {
     return (
       <section>
-        <h2 className="mb-4 text-lg font-semibold tracking-tight">Next best action</h2>
+        <h2 className="mb-4 text-lg font-semibold tracking-tight">{t('Next best action')}</h2>
         <EmptyState
           icon={Target}
-          title="Nothing queued"
-          description="ATLAS found no pending high-value action. Create a goal or ask SCOUT to find opportunities."
+          title={t('Nothing queued')}
+          description={t('ATLAS found no pending high-value action. Create a goal or ask SCOUT to find opportunities.')}
         />
       </section>
     );
@@ -44,11 +45,11 @@ export function NextBestAction() {
           <div className="min-w-0 flex-1">
             <p className="eyebrow mb-3 inline-flex items-center gap-1.5">
               <Crosshair className="h-3 w-3 text-accent" aria-hidden />
-              Next best action · P{nba.priority}
+              {t('Next best action · P')}{nba.priority}
             </p>
             <h2 className="display text-2xl sm:text-3xl">{nba.title}</h2>
             <div className="mt-4 space-y-1.5">
-              <p className="eyebrow">Reasoning</p>
+              <p className="eyebrow">{t('Reasoning')}</p>
               {nba.reasoning.map((line) => (
                 <p key={line} className="flex items-start gap-2 text-sm text-text-2">
                   <ArrowRight className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent/70" aria-hidden />
@@ -64,10 +65,10 @@ export function NextBestAction() {
               className="w-full lg:w-auto px-7"
               onClick={() => openExecutionPreview(nba.plan)}
             >
-              Execute <ArrowRight className="h-4 w-4" />
+              {t('Execute')} <ArrowRight className="h-4 w-4" />
             </Button>
             <p className="mt-2 text-center text-xs text-text-3 lg:text-right">
-              ATLAS shows the full plan before anything runs.
+              {t('ATLAS shows the full plan before anything runs.')}
             </p>
           </div>
         </div>

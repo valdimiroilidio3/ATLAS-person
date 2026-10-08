@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { greeting } from '@/lib/atlas/format';
 import { useAtlas } from '@/lib/atlas/store';
+import { t } from '@/lib/i18n';
 
 function LiveClock() {
   const [now, setNow] = useState<Date | null>(null);
@@ -49,7 +50,7 @@ export function Hero() {
             <h1 className="display text-4xl sm:text-5xl">
               {greeting()}, {state.user.name.split(' ')[0]}.
             </h1>
-            <p className="mt-3 text-lg text-text-2">ATLAS has analyzed your current state.</p>
+            <p className="mt-3 text-lg text-text-2">{t('ATLAS has analyzed your current state.')}</p>
           </div>
           <LiveClock />
         </div>

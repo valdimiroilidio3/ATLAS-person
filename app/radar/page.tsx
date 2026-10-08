@@ -12,14 +12,17 @@ import { cn } from '@/lib/utils';
 import { SectionHeader, Surface } from '@/components/ui/surface';
 import { EmptyState } from '@/components/ui/empty-state';
 import { InsightCard } from '@/components/radar/insight-card';
+import { LiveSignals } from '@/components/radar/live-signals';
+import { ProspectsPanel } from '@/components/radar/prospects-panel';
+import { t } from '@/lib/i18n';
 
-const FILTERS: { id: InsightType | 'all'; label: string }[] = [
-  { id: 'all', label: 'All' },
-  { id: 'opportunity', label: 'Opportunities' },
-  { id: 'risk', label: 'Risks' },
-  { id: 'signal', label: 'Signals' },
-  { id: 'trend', label: 'Trends' },
-  { id: 'blocker', label: 'Blockers' },
+const FILTERS: { id: InsightType | 'all'; labelKey: string }[] = [
+  { id: 'all', labelKey: 'All' },
+  { id: 'opportunity', labelKey: 'Opportunities' },
+  { id: 'risk', labelKey: 'Risks' },
+  { id: 'signal', labelKey: 'Signals' },
+  { id: 'trend', labelKey: 'Trends' },
+  { id: 'blocker', labelKey: 'Blockers' },
 ];
 
 export default function RadarPage() {
@@ -31,9 +34,9 @@ export default function RadarPage() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Intelligence layer"
-        title="Radar"
-        description="Opportunities, risks, signals, trends and blockers — each with why it matters and what ATLAS recommends."
+        eyebrow={t('Intelligence layer')}
+        title={t('Radar')}
+        description={t('Opportunities, risks, signals, trends and blockers — each with why it matters and what ATLAS recommends.')}
       />
 
       {/* Filter chips */}
@@ -53,8 +56,9 @@ export default function RadarPage() {
                   : 'border-border bg-surface text-text-2 hover:border-border-strong hover:text-text',
               )}
             >
-              {f.id !== 'all' && <span className={cn('font-mono uppercase tracking-wider')} style={{ color: 'inherit' }}>{INSIGHT_META[f.id].label}</span>}
-              {f.id === 'all' && 'All'}
+              <span className={cn('font-mono uppercase tracking-wider')} style={{ color: f.id === 'all' ? undefined : 'inherit' }}>
+                {f.id === 'all' ? t('All') : t(INSIGHT_META[f.id].labelKey)}
+              </span>
               <span className="font-mono tabular text-text-3">{count}</span>
             </button>
           );
@@ -65,8 +69,8 @@ export default function RadarPage() {
         <Surface padding={false}>
           <EmptyState
             icon={RadarIcon}
-            title="Radar is quiet"
-            description="No insights of this type right now. ATLAS surfaces opportunities, risks, signals, trends and blockers here."
+            title={t('Radar is quiet')}
+            description={t('No insights of this type right now. ATLAS surfaces opportunities, risks, signals, trends and blockers here.')}
           />
         </Surface>
       ) : (
@@ -76,6 +80,12 @@ export default function RadarPage() {
           ))}
         </motion.div>
       )}
+
+      {/* Live layer — free, keyless APIs (Hacker News · Stack Exchange · Dev.to · npm) */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        <LiveSignals />
+        <ProspectsPanel />
+      </div>
     </div>
   );
 }

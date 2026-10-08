@@ -3,6 +3,7 @@
 // Opportunity · Approval · Integration · Activity · Metric · Milestone · Strategy
 
 import type { LucideIcon } from 'lucide-react';
+import type { Locale } from '@/lib/i18n/dictionaries';
 
 export type ID = string;
 export type Currency = 'EUR' | 'USD' | 'GBP';
@@ -28,6 +29,26 @@ export interface Preferences {
   briefingTime: string; // "08:00"
   weekStartsOn: 0 | 1; // 0 = Sunday, 1 = Monday
   currency: Currency;
+  /** UI language. Default: Portuguese. */
+  language: Locale;
+}
+
+// ---------------------------------------------------------------- API config (Admin)
+
+export interface ApiFeatureToggles {
+  liveRates: boolean;
+  liveSignals: boolean;
+  prospectEnrichment: boolean;
+  dailyQuote: boolean;
+  githubStats: boolean;
+}
+
+export interface ApiConfig {
+  /** Enabled state per API id (from the free-API registry). */
+  enabled: Record<string, boolean>;
+  features: ApiFeatureToggles;
+  /** owner/repository used for live GitHub project stats. */
+  githubRepo: string;
 }
 
 // ---------------------------------------------------------------- Goals
@@ -265,6 +286,10 @@ export interface Opportunity {
   contactedAt?: string;
   /** Messages drafted + approved, waiting for a connected channel. */
   outreachApproved?: boolean;
+  /** Company website domain — powers the Clearbit logo (free API). */
+  domain?: string;
+  /** Country name — powers REST Countries facts (free API). */
+  country?: string;
 }
 
 // ---------------------------------------------------------------- Memory
@@ -310,6 +335,7 @@ export interface Toast {
 export interface AtlasState {
   user: UserProfile;
   preferences: Preferences;
+  apiConfig: ApiConfig;
   goals: Goal[];
   projects: Project[];
   agents: Agent[];

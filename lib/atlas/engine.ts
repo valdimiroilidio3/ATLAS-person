@@ -5,6 +5,7 @@
 // drive it with timers and the UI can drive it with user actions.
 
 import { formatCurrency, formatDateLong } from './format';
+import { t } from '@/lib/i18n';
 import { permissionShort } from './constants';
 import type {
   ActivityEvent,
@@ -77,7 +78,7 @@ function sendStep(title: string, detail: string): RunStep {
     detail,
     integrationId: 'gmail',
     altIntegrationIds: ['whatsapp'],
-    blockedReason: 'No connected channel. Connect Gmail or WhatsApp to send messages.',
+    blockedReason: t('No connected channel. Connect Gmail or WhatsApp to send messages.'),
     ticks: 1,
   });
 }
@@ -85,26 +86,26 @@ function sendStep(title: string, detail: string): RunStep {
 function outreachPlan(count: number): RunStep[] {
   return [
     makeStep({
-      title: 'Qualify prospects against your ICP',
-      detail: 'Scoring model v2 · threshold 75',
+      title: t('Qualify prospects against your ICP'),
+      detail: t('Scoring model v2 · threshold 75'),
       ticks: 1,
     }),
     makeStep({
-      title: 'Draft personalized messages',
+      title: t('Draft personalized messages'),
       detail: `${count} messages · direct tone · your voice`,
       ticks: 2,
     }),
     makeStep({
-      title: 'Review and approve messages',
-      detail: 'Nothing is sent without your approval',
+      title: t('Review and approve messages'),
+      detail: t('Nothing is sent without your approval'),
       requiresApproval: true,
       approvalLevel: 3,
       ticks: 1,
     }),
-    sendStep('Send messages', 'Via Gmail or WhatsApp'),
+    sendStep(t('Send messages'), t('Via Gmail or WhatsApp')),
     makeStep({
-      title: 'Log results to SCOUT',
-      detail: 'Activity, radar and follow-up queue',
+      title: t('Log results to SCOUT'),
+      detail: t('Activity, radar and follow-up queue'),
       ticks: 1,
     }),
   ];
@@ -113,31 +114,31 @@ function outreachPlan(count: number): RunStep[] {
 export function sendApprovedPlan(count: number): RunStep[] {
   return [
     makeStep({
-      title: 'Confirm approved messages',
+      title: t('Confirm approved messages'),
       detail: `${count} messages approved by you`,
       ticks: 1,
     }),
-    sendStep('Send messages', 'Via Gmail or WhatsApp'),
-    makeStep({ title: 'Log results to SCOUT', ticks: 1 }),
+    sendStep(t('Send messages'), t('Via Gmail or WhatsApp')),
+    makeStep({ title: t('Log results to SCOUT'), ticks: 1 }),
   ];
 }
 
 export function deployPlan(project: Project): RunStep[] {
   return [
     makeStep({
-      title: 'Diagnose deployment configuration',
-      detail: 'Found missing: DATABASE_URL, STRIPE_KEY',
+      title: t('Diagnose deployment configuration'),
+      detail: t('Found missing: DATABASE_URL, STRIPE_KEY'),
       ticks: 1,
     }),
     makeStep({
-      title: 'Configure environment variables',
-      detail: 'Requires a Vercel connection',
+      title: t('Configure environment variables'),
+      detail: t('Requires a Vercel connection'),
       integrationId: 'vercel',
-      blockedReason: 'Vercel is not connected. Add the integration to configure environment variables.',
+      blockedReason: t('Vercel is not connected. Add the integration to configure environment variables.'),
       ticks: 1,
     }),
-    makeStep({ title: 'Deploy to production', ticks: 1 }),
-    makeStep({ title: 'Verify live site', detail: 'Smoke-test key pages', ticks: 1 }),
+    makeStep({ title: t('Deploy to production'), ticks: 1 }),
+    makeStep({ title: t('Verify live site'), detail: t('Smoke-test key pages'), ticks: 1 }),
   ];
 }
 
@@ -146,19 +147,19 @@ export function catalogPlan(project: Project): RunStep[] {
   return [
     makeStep({
       title: `Generate missing copy — ${active?.title ?? 'final item'}`,
-      detail: 'Product copy, bundle contents and FAQs',
+      detail: t('Product copy, bundle contents and FAQs'),
       ticks: 2,
     }),
     makeStep({
-      title: 'Review catalog changes',
-      detail: 'You approve before anything is applied',
+      title: t('Review catalog changes'),
+      detail: t('You approve before anything is applied'),
       requiresApproval: true,
       approvalLevel: 3,
       ticks: 1,
     }),
     makeStep({
-      title: 'Apply changes to the catalog',
-      detail: 'Updates the project state in ATLAS',
+      title: t('Apply changes to the catalog'),
+      detail: t('Updates the project state in ATLAS'),
       ticks: 1,
       effect: active
         ? { type: 'complete-milestone', projectId: project.id, milestoneTitle: active.title }
@@ -169,53 +170,53 @@ export function catalogPlan(project: Project): RunStep[] {
 
 function seoAuditPlan(project: Project): RunStep[] {
   return [
-    makeStep({ title: `Crawl ${project.name}`, detail: 'Full technical crawl', ticks: 1 }),
-    makeStep({ title: 'Analyze known issues', detail: '18 issues triaged by severity', ticks: 2 }),
-    makeStep({ title: 'Generate fix list', detail: 'Prioritized by traffic impact', ticks: 1 }),
+    makeStep({ title: `Crawl ${project.name}`, detail: t('Full technical crawl'), ticks: 1 }),
+    makeStep({ title: t('Analyze known issues'), detail: t('18 issues triaged by severity'), ticks: 2 }),
+    makeStep({ title: t('Generate fix list'), detail: t('Prioritized by traffic impact'), ticks: 1 }),
     makeStep({
-      title: 'Apply safe fixes',
-      detail: 'Meta descriptions, alt text, sitemap',
+      title: t('Apply safe fixes'),
+      detail: t('Meta descriptions, alt text, sitemap'),
       requiresApproval: true,
       approvalLevel: 2,
       ticks: 1,
-      effect: { type: 'complete-milestone', projectId: project.id, milestoneTitle: 'SEO audit' },
+      effect: { type: 'complete-milestone', projectId: project.id, milestoneTitle: t('SEO audit') },
     }),
   ];
 }
 
 function scoutSweepPlan(): RunStep[] {
   return [
-    makeStep({ title: 'Scan configured sources', detail: 'LinkedIn, web, job boards', ticks: 1 }),
-    makeStep({ title: 'Score against ICP', detail: 'Scoring model v2', ticks: 2 }),
-    makeStep({ title: 'Queue top prospects', detail: 'Threshold 75', ticks: 1 }),
-    makeStep({ title: 'Update radar', detail: 'Signals and trends', ticks: 1 }),
+    makeStep({ title: t('Scan configured sources'), detail: t('LinkedIn, web, job boards'), ticks: 1 }),
+    makeStep({ title: t('Score against ICP'), detail: t('Scoring model v2'), ticks: 2 }),
+    makeStep({ title: t('Queue top prospects'), detail: t('Threshold 75'), ticks: 1 }),
+    makeStep({ title: t('Update radar'), detail: t('Signals and trends'), ticks: 1 }),
   ];
 }
 
 function researchPlan(objective: string): RunStep[] {
   return [
-    makeStep({ title: 'Define research scope', detail: objective, ticks: 1 }),
-    makeStep({ title: 'Gather sources', ticks: 2 }),
-    makeStep({ title: 'Synthesize findings', ticks: 2 }),
-    makeStep({ title: 'Deliver report', ticks: 1 }),
+    makeStep({ title: t('Define research scope'), detail: objective, ticks: 1 }),
+    makeStep({ title: t('Gather sources'), ticks: 2 }),
+    makeStep({ title: t('Synthesize findings'), ticks: 2 }),
+    makeStep({ title: t('Deliver report'), ticks: 1 }),
   ];
 }
 
 function contentPlan(objective: string): RunStep[] {
   return [
-    makeStep({ title: 'Draft asset', detail: objective, ticks: 2 }),
+    makeStep({ title: t('Draft asset'), detail: objective, ticks: 2 }),
     makeStep({
-      title: 'Review draft',
-      detail: 'Nothing is published without your approval',
+      title: t('Review draft'),
+      detail: t('Nothing is published without your approval'),
       requiresApproval: true,
       approvalLevel: 3,
       ticks: 1,
     }),
     makeStep({
       title: 'Publish',
-      detail: 'Deliver via a connected channel',
+      detail: t('Deliver via a connected channel'),
       external: true,
-      blockedReason: 'No publishing channel is connected. The approved draft is saved in ATLAS.',
+      blockedReason: t('No publishing channel is connected. The approved draft is saved in ATLAS.'),
       ticks: 1,
     }),
   ];
@@ -223,37 +224,37 @@ function contentPlan(objective: string): RunStep[] {
 
 function executionPlan(objective: string): RunStep[] {
   return [
-    makeStep({ title: 'Diagnose current state', detail: objective, ticks: 1 }),
+    makeStep({ title: t('Diagnose current state'), detail: objective, ticks: 1 }),
     makeStep({
-      title: 'Prepare execution plan',
-      detail: 'Steps, dependencies and risks',
+      title: t('Prepare execution plan'),
+      detail: t('Steps, dependencies and risks'),
       requiresApproval: true,
       approvalLevel: 3,
       ticks: 1,
     }),
     makeStep({
       title: 'Execute',
-      detail: 'External actions need a connected integration',
+      detail: t('External actions need a connected integration'),
       external: true,
-      blockedReason: 'No connected integration can perform this action yet.',
+      blockedReason: t('No connected integration can perform this action yet.'),
       ticks: 2,
     }),
-    makeStep({ title: 'Verify outcome', ticks: 1 }),
+    makeStep({ title: t('Verify outcome'), ticks: 1 }),
   ];
 }
 
 function deploymentPlan(projectName: string): RunStep[] {
   return [
-    makeStep({ title: 'Build project', ticks: 1 }),
+    makeStep({ title: t('Build project'), ticks: 1 }),
     makeStep({
-      title: 'Configure environment',
-      detail: 'Requires a Vercel connection',
+      title: t('Configure environment'),
+      detail: t('Requires a Vercel connection'),
       integrationId: 'vercel',
-      blockedReason: 'Vercel is not connected. Add the integration to configure environment variables.',
+      blockedReason: t('Vercel is not connected. Add the integration to configure environment variables.'),
       ticks: 1,
     }),
-    makeStep({ title: 'Deploy to production', ticks: 1 }),
-    makeStep({ title: 'Verify live site', ticks: 1 }),
+    makeStep({ title: t('Deploy to production'), ticks: 1 }),
+    makeStep({ title: t('Verify live site'), ticks: 1 }),
   ];
 }
 
@@ -312,16 +313,16 @@ export function deriveNextBestAction(state: AtlasState): NextBestAction | null {
       kind: 'send-approved',
       priority: 1,
       agentId: 'a-scout',
-      title: `Send ${approved.length} approved messages.`,
+      title: t('Send {count} approved messages.', { count: approved.length }),
       reasoning: [
-        'Messages are drafted and approved by you.',
-        'Waiting on a connected channel — Gmail or WhatsApp.',
-        'Every send is logged and measured.',
+        t('Messages are drafted and approved by you.'),
+        t('Waiting on a connected channel — Gmail or WhatsApp.'),
+        t('Every send is logged and measured.'),
       ],
-      intentText: 'Send the approved outreach messages.',
+      intentText: t('Send the approved outreach messages.'),
       plan: {
         agentId: 'a-scout',
-        objective: `Send ${approved.length} approved messages`,
+        objective: t('Send {count} approved messages', { count: approved.length }),
         kind: 'send-approved',
         steps: sendApprovedPlan(approved.length),
         linkedOpportunityIds: approved.map((o) => o.id),
@@ -335,22 +336,22 @@ export function deriveNextBestAction(state: AtlasState): NextBestAction | null {
     const engaged = fresh.filter((o) => o.signals.some((s) => /portfolio|pricing/i.test(s))).length;
     const outdated = fresh.filter((o) => o.signals.some((s) => /outdated|opportunity/i.test(s))).length;
     const reasoning = [
-      icp > 0 ? `${icp} match your ideal customer profile.` : null,
-      engaged > 0 ? `${engaged} recently interacted with your site.` : null,
-      outdated > 0 ? `${outdated} have a clear website opportunity.` : null,
-      'SCOUT scored them against your ICP — threshold 75.',
+      icp > 0 ? t('{count} match your ideal customer profile.', { count: icp }) : null,
+      engaged > 0 ? t('{count} recently interacted with your site.', { count: engaged }) : null,
+      outdated > 0 ? t('{count} have a clear website opportunity.', { count: outdated }) : null,
+      t('SCOUT scored them against your ICP — threshold 75.'),
     ].filter(Boolean) as string[];
     return {
       id: 'outreach',
       kind: 'outreach',
       priority: 1,
       agentId: 'a-scout',
-      title: `Contact ${fresh.length} high-intent leads.`,
+      title: t('Contact {count} high-intent leads.', { count: fresh.length }),
       reasoning,
-      intentText: `Contact ${fresh.length} high-intent leads.`,
+      intentText: t('Contact {count} high-intent leads.', { count: fresh.length }),
       plan: {
         agentId: 'a-scout',
-        objective: `Contact ${fresh.length} high-intent leads`,
+        objective: t('Contact {count} high-intent leads', { count: fresh.length }),
         kind: 'outreach',
         steps: outreachPlan(fresh.length),
         linkedOpportunityIds: fresh.map((o) => o.id),
@@ -364,16 +365,16 @@ export function deriveNextBestAction(state: AtlasState): NextBestAction | null {
       kind: 'deploy',
       priority: 1,
       agentId: 'a-execution',
-      title: 'Resolve the ORBITA deployment blocker.',
+      title: t('Resolve the ORBITA deployment blocker.'),
       reasoning: [
-        'Your launch date is in 6 days.',
-        'Deployment is blocked: environment variables are missing.',
-        'Vercel must be connected to configure them.',
+        t('Your launch date is in 6 days.'),
+        t('Deployment is blocked: environment variables are missing.'),
+        t('Vercel must be connected to configure them.'),
       ],
-      intentText: 'Prepare ORBITA for launch.',
+      intentText: t('Prepare ORBITA for launch.'),
       plan: {
         agentId: 'a-execution',
-        objective: 'Resolve the ORBITA deployment blocker',
+        objective: t('Resolve the ORBITA deployment blocker'),
         kind: 'deploy',
         steps: deployPlan(orbita),
         linkedProjectId: orbita.id,
@@ -389,16 +390,16 @@ export function deriveNextBestAction(state: AtlasState): NextBestAction | null {
         kind: 'catalog',
         priority: 2,
         agentId: 'a-content',
-        title: `Complete WEAF — ${active.title.toLowerCase()}.`,
+        title: t('Complete {project} — {milestone}.', { project: 'WEAF', milestone: active.title.toLowerCase() }),
         reasoning: [
-          `WEAF is at ${deriveProjectProgress(weaf)}%.`,
-          'One catalog item remains.',
-          'The CONTENT agent can draft it now.',
+          t('{project} is at {progress}%.', { project: 'WEAF', progress: deriveProjectProgress(weaf) }),
+          t('One catalog item remains.'),
+          t('The CONTENT agent can draft it now.'),
         ],
-        intentText: 'Complete the WEAF catalog.',
+        intentText: t('Complete the WEAF catalog.'),
         plan: {
           agentId: 'a-content',
-          objective: 'Complete the WEAF catalog',
+          objective: t('Complete the WEAF catalog'),
           kind: 'catalog',
           steps: catalogPlan(weaf),
           linkedProjectId: weaf.id,
@@ -415,16 +416,16 @@ export function deriveNextBestAction(state: AtlasState): NextBestAction | null {
         kind: 'seo-audit',
         priority: 2,
         agentId: 'a-seo',
-        title: 'Finish the ORBITA SEO audit.',
+        title: t('Finish the ORBITA SEO audit.'),
         reasoning: [
-          '18 issues found so far.',
-          'Safe fixes can be applied automatically.',
-          'The launch checklist depends on it.',
+          t('18 issues found so far.'),
+          t('Safe fixes can be applied automatically.'),
+          t('The launch checklist depends on it.'),
         ],
-        intentText: 'Finish the ORBITA SEO audit.',
+        intentText: t('Finish the ORBITA SEO audit.'),
         plan: {
           agentId: 'a-seo',
-          objective: 'Finish the ORBITA SEO audit',
+          objective: t('Finish the ORBITA SEO audit'),
           kind: 'seo-audit',
           steps: seoAuditPlan(orbita),
           linkedProjectId: orbita.id,
@@ -488,6 +489,15 @@ const AGENT_NAME_TO_ID: Record<string, ID> = {
   seo: 'a-seo',
   execution: 'a-execution',
   deployment: 'a-deployment',
+  // Portuguese aliases
+  pesquisa: 'a-research',
+  conteudo: 'a-content',
+  'conteúdo': 'a-content',
+  execucao: 'a-execution',
+  'execução': 'a-execution',
+  implantar: 'a-deployment',
+  implantacao: 'a-deployment',
+  'implantação': 'a-deployment',
 };
 
 function buildBriefing(state: AtlasState, nba: NextBestAction | null) {
@@ -497,12 +507,12 @@ function buildBriefing(state: AtlasState, nba: NextBestAction | null) {
   const icp = fresh.filter((o) => o.signals.some((s) => /ideal customer/i.test(s))).length;
   return {
     priorities: [
-      nba ? nba.title : 'Review your goals.',
-      orbita?.status === 'blocked' ? 'Resolve the ORBITA deployment blocker.' : 'Finish the ORBITA SEO audit.',
-      weaf?.milestones.some((m) => m.status === 'active') ? 'Complete the WEAF catalog.' : 'Review pending approvals.',
+      nba ? nba.title : t('Review your goals.'),
+      orbita?.status === 'blocked' ? t('Resolve the ORBITA deployment blocker.') : t('Finish the ORBITA SEO audit.'),
+      weaf?.milestones.some((m) => m.status === 'active') ? t('Complete the WEAF catalog.') : t('Review pending approvals.'),
     ],
-    avoid: 'Spending time polishing the UI before launch.',
-    opportunity: icp > 0 ? `${icp} new prospects match your ideal customer profile.` : 'Your pipeline is quiet — ask SCOUT to find more prospects.',
+    avoid: t('Spending time polishing the UI before launch.'),
+    opportunity: icp > 0 ? t('{count} new prospects match your ideal customer profile.', { count: icp }) : t('Your pipeline is quiet — ask SCOUT to find more prospects.'),
   };
 }
 
@@ -513,21 +523,30 @@ function explainStatus(state: AtlasState): string {
   if (revenue) {
     const projected = revenue.projected ?? revenue.current;
     lines.push(
-      `Revenue is at ${formatCurrency(revenue.current)} of ${formatCurrency(revenue.target)} (${goalProgress(revenue)}%). At your current pace you project ${formatCurrency(projected)} — ${formatCurrency(Math.max(0, revenue.target - projected))} short.`,
+      t('Revenue is at {current} of {target} ({progress}%). At your current pace you project {projected} — {short} short.', {
+        current: formatCurrency(revenue.current),
+        target: formatCurrency(revenue.target),
+        progress: goalProgress(revenue),
+        projected: formatCurrency(projected),
+        short: formatCurrency(Math.max(0, revenue.target - projected)),
+      }),
     );
   }
   if (orbita) {
     lines.push(
       orbita.status === 'blocked'
-        ? `ORBITA is at ${deriveProjectProgress(orbita)}% but blocked: ${orbita.blockers[0]?.reason ?? 'a blocker needs attention.'} The launch checklist cannot finish until deployment unblocks.`
-        : `ORBITA is at ${deriveProjectProgress(orbita)}% and on track.`,
+        ? t('ORBITA is at {progress}% but blocked: {reason} The launch checklist cannot finish until deployment unblocks.', {
+            progress: deriveProjectProgress(orbita),
+            reason: orbita.blockers[0]?.reason ?? t('a blocker needs attention.'),
+          })
+        : t('ORBITA is at {progress}% and on track.', { progress: deriveProjectProgress(orbita) }),
     );
   }
   const fresh = state.opportunities.filter((o) => o.status === 'new');
   lines.push(
     fresh.length > 0
-      ? `SCOUT has ${fresh.length} high-intent prospects waiting — that is your fastest lever today.`
-      : 'Your prospect queue is empty — a SCOUT sweep would refill it.',
+      ? t('SCOUT has {count} high-intent prospects waiting — that is your fastest lever today.', { count: fresh.length })
+      : t('Your prospect queue is empty — a SCOUT sweep would refill it.'),
   );
   return lines.join(' ');
 }
@@ -537,7 +556,7 @@ function analyzeProjects(state: AtlasState): string {
     .map((p) => {
       const progress = deriveProjectProgress(p);
       const blocker = p.blockers[0];
-      const tail = blocker ? ` Blocked: ${blocker.title.toLowerCase()}.` : p.milestones.some((m) => m.status === 'active') ? ' On track.' : '';
+      const tail = blocker ? ` ${t('Blocked: {title}.', { title: blocker.title.toLowerCase() })}` : p.milestones.some((m) => m.status === 'active') ? ` ${t('On track.')}` : '';
       return `${p.name} — ${progress}%${tail}`;
     })
     .join(' ');
@@ -551,193 +570,193 @@ export function interpretIntent(input: string, state: AtlasState): InterpretedIn
   const fresh = state.opportunities.filter((o) => o.status === 'new' && !o.outreachApproved);
 
   const baseChips = [
-    'What should I do today?',
-    'Launch my website.',
-    'Why am I behind?',
-    'Find opportunities.',
-    'Build a strategy to reach €2,000/month.',
+    t('What should I do today?'),
+    t('Launch my website.'),
+    t('Why am I behind?'),
+    t('Find opportunities.'),
+    t('Build a strategy to reach €2,000/month.'),
   ];
 
   // Launch my website / ORBITA
-  if (/(launch|ship|deploy|go live)/.test(q) && /(website|orbita|site|portfolio)/.test(q)) {
+  if (/(launch|ship|deploy|go live|lan[çc]|publicar|estrear|colocar no ar)/i.test(q) && /(website|orbita|site|portfolio|portf[óo]lio)/i.test(q)) {
     const deadline = new Date(Date.now() + 6 * 86400000).toISOString();
     return {
       type: 'launch-project',
       confidence: 0.9,
-      summary: 'ATLAS turned your intent into a launch plan for ORBITA.',
+      summary: t('ATLAS turned your intent into a launch plan for ORBITA.'),
       goalPreview: {
-        title: 'Launch ORBITA',
+        title: t('Launch ORBITA'),
         deadline,
-        strategy: ['Finish the SEO audit', 'Configure deployment', 'Verify the live site'],
-        actions: ['Complete the SEO audit', 'Connect Vercel', 'Set environment variables', 'Deploy and verify'],
-        dependencies: ['Vercel integration connected', 'Environment variables set'],
-        risks: ['The launch date is at risk while deployment is blocked'],
+        strategy: [t('Finish the SEO audit'), t('Configure deployment'), t('Verify the live site')],
+        actions: [t('Complete the SEO audit'), t('Connect Vercel'), t('Set environment variables'), t('Deploy and verify')],
+        dependencies: [t('Vercel integration connected'), t('Environment variables set')],
+        risks: [t('The launch date is at risk while deployment is blocked')],
         requiredApproval: 3,
         checklist: orbita?.milestones.map((m) => ({ title: m.title, status: m.status })),
       },
       plan: orbita
         ? {
             agentId: 'a-execution',
-            objective: 'Prepare and deploy ORBITA',
+            objective: t('Prepare and deploy ORBITA'),
             kind: 'deploy',
             steps: deployPlan(orbita),
             linkedProjectId: orbita.id,
           }
         : undefined,
-      suggestedChips: ['What is blocking the launch?', 'Analyze my current projects'],
+      suggestedChips: [t('What is blocking the launch?'), t('Analyze my current projects')],
     };
   }
 
   // Daily briefing
-  if (/(what should i do|today|daily|briefing|priorities|start my day|morning)/.test(q)) {
+  if (/(what should i do|today|daily|briefing|priorities|start my day|morning|o que (devo|faço)|hoje|manhã|manha|prioridades|come[çc]ar o dia)/i.test(q)) {
     return {
       type: 'daily-briefing',
       confidence: 0.95,
-      summary: 'Here is where ATLAS would focus today.',
+      summary: t('Here is where ATLAS would focus today.'),
       briefing: buildBriefing(state, nba),
       // "Start the day" executes the top priority.
       plan: nba?.plan,
-      suggestedChips: ['Execute the top priority', 'Why am I behind?', 'Find opportunities.'],
+      suggestedChips: [t('Execute the top priority'), t('Why am I behind?'), t('Find opportunities.')],
     };
   }
 
   // Why am I behind
-  if (/(why.*behind|behind|lagging|explain|status|where am i|how am i)/.test(q)) {
+  if (/(why.*behind|behind|lagging|explain|status|where am i|how am i|porqu[eé].*atras|atrasad|explica|estado|onde estou|como estou)/i.test(q)) {
     return {
       type: 'explain-status',
       confidence: 0.88,
-      summary: 'Here is the state of your system.',
+      summary: t('Here is the state of your system.'),
       answer: explainStatus(state),
-      suggestedChips: ['What should I do today?', 'Build a strategy to reach €2,000/month.'],
+      suggestedChips: [t('What should I do today?'), t('Build a strategy to reach €2,000/month.')],
     };
   }
 
   // Find opportunities
-  if (/(opportunit|prospect|lead|client)/.test(q) && /(find|look|search|more|new)/.test(q)) {
+  if (/(opportunit|prospect|lead|client|oportunidade|prospect|client)/i.test(q) && /(find|look|search|more|new|encontr|procur|busc|mais|nov)/i.test(q)) {
     return {
       type: 'find-opportunities',
       confidence: 0.85,
-      summary: 'SCOUT can run a prospecting sweep right now.',
-      answer: `SCOUT is ${scout?.status ?? 'idle'}. ${fresh.length} high-intent prospects are already queued — a sweep can add more today.`,
+      summary: t('SCOUT can run a prospecting sweep right now.'),
+      answer: t('SCOUT is {status}. {count} high-intent prospects are already queued — a sweep can add more today.', { status: scout?.status ?? 'idle', count: fresh.length }),
       plan: {
         agentId: 'a-scout',
-        objective: 'Prospecting sweep — find and qualify new leads',
+        objective: t('Prospecting sweep — find and qualify new leads'),
         kind: 'scout-sweep',
         steps: scoutSweepPlan(),
       },
-      suggestedChips: ['Contact the current queue', 'What should I do today?'],
+      suggestedChips: [t('Contact the current queue'), t('What should I do today?')],
     };
   }
 
   // Build a strategy to reach €X / month
   const money = q.match(/[€$£]\s?([\d,]+)/);
-  if (/(strategy|plan|reach|build|get to|grow to)/.test(q) && (money || /(revenue|mrr|month)/.test(q))) {
+  if (/(strategy|plan|reach|build|get to|grow to|estrat[eé]gia|plano|atingir|chegar|crescer|construir)/i.test(q) && (money || /(revenue|mrr|month|receita|mensal|m[eê]s)/i.test(q))) {
     const target = money ? Number(money[1].replace(/,/g, '')) : 2000;
     const deadline = new Date(Date.now() + 90 * 86400000).toISOString();
     return {
       type: 'build-strategy',
       confidence: 0.78,
-      summary: `A strategy to reach ${formatCurrency(target)}/month — built on your assumptions, not promises.`,
+      summary: t('A strategy to reach {target}/month — built on your assumptions, not promises.', { target: formatCurrency(target) }),
       goalPreview: {
-        title: `${formatCurrency(target)} monthly revenue`,
+        title: t('{target} monthly revenue', { target: formatCurrency(target) }),
         deadline,
-        strategy: ['Premium websites (€3.5k–€8k)', 'AI automation retainers', 'Outbound acquisition'],
-        actions: ['14 qualified prospects / day', '6 conversations / day', '2 proposals / day', '3–4 clients / month'],
-        dependencies: ['ORBITA live as proof', 'A daily prospecting cadence'],
-        risks: ['Reply rate is declining', 'Pipeline concentration on outbound'],
+        strategy: [t('Premium websites (€3.5k–€8k)'), t('AI automation retainers'), t('Outbound acquisition')],
+        actions: [t('14 qualified prospects / day'), t('6 conversations / day'), t('2 proposals / day'), t('3–4 clients / month')],
+        dependencies: [t('ORBITA live as proof'), t('A daily prospecting cadence')],
+        risks: [t('Reply rate is declining'), t('Pipeline concentration on outbound')],
         requiredApproval: 1,
       },
-      suggestedChips: ['Create this as a goal', 'What should I do today?', 'Analyze my current projects'],
+      suggestedChips: [t('Create this as a goal'), t('What should I do today?'), t('Analyze my current projects')],
     };
   }
 
   // Prepare ORBITA for launch
-  if (/(prepare|get|make).*(launch|ready)/.test(q)) {
+  if (/(prepare|get|make|preparar|deixar|deixa).*(launch|ready|lan[çc]amento|pront)/i.test(q)) {
     const deadline = orbita?.deadline ?? new Date(Date.now() + 6 * 86400000).toISOString();
     return {
       type: 'prepare-launch',
       confidence: 0.88,
-      summary: `Launch readiness for ORBITA — deadline ${formatDateLong(deadline)}.`,
+      summary: t('Launch readiness for ORBITA — deadline {date}.', { date: formatDateLong(deadline) }),
       goalPreview: {
-        title: 'Launch ORBITA',
+        title: t('Launch ORBITA'),
         deadline,
-        strategy: ['Finish the SEO audit', 'Configure deployment', 'Verify the live site'],
-        actions: ['Complete the SEO audit', 'Connect Vercel', 'Set environment variables', 'Deploy and verify'],
-        dependencies: ['Vercel integration connected', 'Environment variables set'],
-        risks: ['Deployment is blocked until Vercel is connected'],
+        strategy: [t('Finish the SEO audit'), t('Configure deployment'), t('Verify the live site')],
+        actions: [t('Complete the SEO audit'), t('Connect Vercel'), t('Set environment variables'), t('Deploy and verify')],
+        dependencies: [t('Vercel integration connected'), t('Environment variables set')],
+        risks: [t('Deployment is blocked until Vercel is connected')],
         requiredApproval: 3,
         checklist: orbita?.milestones.map((m) => ({ title: m.title, status: m.status })),
       },
       plan: orbita
         ? {
             agentId: 'a-execution',
-            objective: 'Prepare ORBITA for launch',
+            objective: t('Prepare ORBITA for launch'),
             kind: 'deploy',
             steps: deployPlan(orbita),
             linkedProjectId: orbita.id,
           }
         : undefined,
-      suggestedChips: ['What is blocking the launch?', 'Launch my website.'],
+      suggestedChips: [t('What is blocking the launch?'), t('Launch my website.')],
     };
   }
 
   // Analyze projects
-  if (/analy/.test(q) && /(project|portfolio|everything|all|business)/.test(q)) {
+  if (/(analy|analis)/i.test(q) && /(project|portfolio|everything|all|business|projet|tudo|neg[oó]cio|portf[óo]lio)/i.test(q)) {
     return {
       type: 'analyze-projects',
       confidence: 0.9,
-      summary: 'Your projects, measured from structured state.',
+      summary: t('Your projects, measured from structured state.'),
       answer: analyzeProjects(state),
-      suggestedChips: ['What should I do today?', 'Why am I behind?'],
+      suggestedChips: [t('What should I do today?'), t('Why am I behind?')],
     };
   }
 
   // Create goal
-  if (/(create|new|add|set|define).*(goal|target|objective)/.test(q)) {
+  if (/(create|new|add|set|define|criar|nova|novo|adicionar|definir).*(goal|target|objective|meta|objetivo|alvo)/i.test(q)) {
     return {
       type: 'create-goal',
       confidence: 0.92,
-      summary: 'Define the goal — ATLAS will structure the strategy around it.',
-      suggestedChips: ['Build a strategy to reach €2,000/month.', 'What should I do today?'],
+      summary: t('Define the goal — ATLAS will structure the strategy around it.'),
+      suggestedChips: [t('Build a strategy to reach €2,000/month.'), t('What should I do today?')],
     };
   }
 
   // Run an agent
-  const agentWord = q.match(/scout|research|content|seo|execution|deployment/);
-  if (agentWord && /(run|start|ask|tell|launch|have)/.test(q)) {
+  const agentWord = q.match(/scout|research|pesquisa|content|conteudo|conteúdo|seo|execution|execução|execucao|deployment|implantar|implantacao|implantação/);
+  if (agentWord && /(run|start|ask|tell|launch|have|corre|inicia|iniciar|come[çc]|pede|executa|roda|lan[çc])/i.test(q)) {
     const agentId = AGENT_NAME_TO_ID[agentWord[0]];
     const agent = state.agents.find((a) => a.id === agentId);
     return {
       type: 'run-agent',
       confidence: 0.82,
-      summary: `${agent?.name ?? 'The agent'} will pick this up. Sensitive steps still need your approval.`,
+      summary: t('{agent} will pick this up. Sensitive steps still need your approval.', { agent: agent?.name ?? t('The agent') }),
       agentId,
       plan: {
         agentId,
-        objective: input.trim().replace(/^(run|start|ask|tell|have)\s*/i, '') || `${agent?.name ?? 'Agent'} task`,
+        objective: input.trim().replace(/^(run|start|ask|tell|have|corre|inicia|iniciar|começa|comecar|pede|executa|roda|lança|lançar)\s*/i, '') || t('{agent} task', { agent: agent?.name ?? t('Agent') }),
         kind: agentId === 'a-scout' ? 'scout-sweep' : agentId === 'a-research' ? 'research' : agentId === 'a-content' ? 'content' : 'generic',
         steps: [], // filled by the store via agentPlan()
       },
-      suggestedChips: ['What should I do today?', 'Analyze my current projects'],
+      suggestedChips: [t('What should I do today?'), t('Analyze my current projects')],
     };
   }
 
   // Execute the next best action
-  if (/\b(execute|do it|start|go|run it|next best|highest[- ]value|just do)\b/.test(q) && nba) {
+  if (/\b(execute|do it|start|go|run it|next best|highest[- ]value|just do)\b|(executa|executar|faz|fazer|come[çc]|melhor a[cç][ãa]o)/i.test(q) && nba) {
     return {
       type: 'start-nba',
       confidence: 0.9,
       summary: nba.title,
       plan: nba.plan,
-      suggestedChips: ['What should I do today?', 'Why am I behind?'],
+      suggestedChips: [t('What should I do today?'), t('Why am I behind?')],
     };
   }
 
   return {
     type: 'unknown',
     confidence: 0.4,
-    summary: 'ATLAS needs a clearer objective.',
-    answer: 'I can plan launches, find opportunities, build strategies, or explain your current state. Try one of these:',
+    summary: t('ATLAS needs a clearer objective.'),
+    answer: t('I can plan launches, find opportunities, build strategies, or explain your current state. Try one of these:'),
     suggestedChips: baseChips,
   };
 }
@@ -831,7 +850,7 @@ export function attachRun(state: AtlasState, run: AgentRun): AtlasState {
       ].slice(0, 30),
     }),
     activities: [activity('agent', name, `Started run — ${run.objective}`, undefined, 'info'), ...state.activities],
-    toasts: [...state.toasts, makeToast('ATLAS is working', run.objective, 'info')],
+    toasts: [...state.toasts, makeToast(t('ATLAS is working'), run.objective, 'info')],
   };
 }
 
@@ -894,18 +913,18 @@ function applyStepEffect(state: AtlasState, run: AgentRun, step: RunStep): Atlas
 
 const RUN_RESULTS: Record<RunKind, (run: AgentRun, state: AtlasState) => string> = {
   outreach: (run, state) => {
-    const sent = run.steps.find((s) => s.title === 'Send messages')?.status === 'done';
+    const sent = run.steps.find((s) => s.title === t('Send messages') || s.title === 'Send messages')?.status === 'done';
     const n = run.linkedOpportunityIds?.length ?? state.opportunities.filter((o) => o.status === 'new').length;
     return sent ? `${n} prospects contacted. Follow-ups scheduled.` : `${n} messages prepared and approved.`;
   },
   'send-approved': (run) => `${run.linkedOpportunityIds?.length ?? 0} approved messages sent. Results logged to SCOUT.`,
-  deploy: () => 'ORBITA deployed and verified live.',
-  catalog: () => 'WEAF catalog completed — every item is live.',
-  'seo-audit': () => 'SEO audit complete — safe fixes applied.',
-  'scout-sweep': () => 'Sweep complete — new signals queued for review.',
-  research: () => 'Research report delivered.',
-  content: () => 'Asset approved and saved. Connect a channel to publish.',
-  generic: () => 'Run completed.',
+  deploy: () => t('ORBITA deployed and verified live.'),
+  catalog: () => t('WEAF catalog completed — every item is live.'),
+  'seo-audit': () => t('SEO audit complete — safe fixes applied.'),
+  'scout-sweep': () => t('Sweep complete — new signals queued for review.'),
+  research: () => t('Research report delivered.'),
+  content: () => t('Asset approved and saved. Connect a channel to publish.'),
+  generic: () => t('Run completed.'),
 };
 
 function completeRun(state: AtlasState, runId: ID): AtlasState {
@@ -913,13 +932,13 @@ function completeRun(state: AtlasState, runId: ID): AtlasState {
   if (!run) return state;
   const finishedAt = new Date().toISOString();
   const name = agentName(state, run.agentId);
-  const result = RUN_RESULTS[run.kind]?.(run, state) ?? 'Run completed.';
+  const result = RUN_RESULTS[run.kind]?.(run, state) ?? t('Run completed.');
 
   let next = patchRun(state, runId, { status: 'completed', finishedAt, progress: 100, result });
 
   // Kind-level side effects.
   if (run.kind === 'outreach' || run.kind === 'send-approved') {
-    const sent = run.steps.find((s) => s.title === 'Send messages')?.status === 'done';
+    const sent = run.steps.find((s) => s.title === t('Send messages') || s.title === 'Send messages')?.status === 'done';
     if (sent && run.linkedOpportunityIds?.length) {
       next = {
         ...next,
@@ -949,7 +968,7 @@ function completeRun(state: AtlasState, runId: ID): AtlasState {
       activity('agent', name, `Completed — ${run.objective}`, result, 'success'),
       ...next.activities,
     ],
-    toasts: [...next.toasts, makeToast('Run completed', result, 'success')],
+    toasts: [...next.toasts, makeToast(t('Run completed'), result, 'success')],
   };
   return next;
 }
@@ -966,7 +985,7 @@ function cancelRun(state: AtlasState, runId: ID, reason: string): AtlasState {
       activity('system', 'ATLAS', `Run cancelled — ${run.objective}`, reason, 'warning'),
       ...state.activities,
     ],
-    toasts: [...state.toasts, makeToast('Run cancelled', reason, 'warning', true)],
+    toasts: [...state.toasts, makeToast(t('Run cancelled'), reason, 'warning', true)],
   };
 }
 
@@ -1003,7 +1022,7 @@ function advanceRun(state: AtlasState, runId: ID): AtlasState {
         };
       }
       if (approval.status === 'rejected') {
-        return cancelRun(state, runId, approval.resolvedAt ? 'Approval rejected by you.' : 'Approval rejected.');
+        return cancelRun(state, runId, approval.resolvedAt ? t('Approval rejected by you.') : t('Approval rejected.'));
       }
       return state;
     }
@@ -1040,12 +1059,12 @@ function advanceRun(state: AtlasState, runId: ID): AtlasState {
             ],
             toasts: [
               ...state.toasts,
-              makeToast('Approval needed', `${name}: ${step.title}`, 'warning', true),
+              makeToast(t('Approval needed'), `${name}: ${step.title}`, 'warning', true),
             ],
           };
         }
         if (isStepBlockedByIntegration(state, step)) {
-          const reason = step.blockedReason || 'A required integration is not connected.';
+          const reason = step.blockedReason || t('A required integration is not connected.');
           const agent = state.agents.find((a) => a.id === run.agentId);
           return {
             ...patchRun(state, runId, {
@@ -1061,7 +1080,7 @@ function advanceRun(state: AtlasState, runId: ID): AtlasState {
               activity('agent', agentName(state, run.agentId), `Blocked — ${run.objective}`, reason, 'error'),
               ...state.activities,
             ],
-            toasts: [...state.toasts, makeToast('Execution blocked', reason, 'error', true)],
+            toasts: [...state.toasts, makeToast(t('Execution blocked'), reason, 'error', true)],
           };
         }
         return patchRun(state, runId, {
@@ -1153,7 +1172,7 @@ export function approveApproval(state: AtlasState, approvalId: ID): AtlasState {
   };
 }
 
-export function rejectApproval(state: AtlasState, approvalId: ID, reason = 'Rejected by you.'): AtlasState {
+export function rejectApproval(state: AtlasState, approvalId: ID, reason = t('Rejected by you.')): AtlasState {
   const approval = state.approvals.find((a) => a.id === approvalId);
   if (!approval || approval.status !== 'pending') return state;
   const resolvedAt = new Date().toISOString();
@@ -1221,7 +1240,7 @@ export function createGoal(state: AtlasState, input: CreateGoalInput): { state: 
     milestones: [],
     risks: [],
     nextActions: [],
-    aiRecommendation: 'ATLAS will generate a strategy and milestones once this goal has some activity.',
+    aiRecommendation: t('ATLAS will generate a strategy and milestones once this goal has some activity.'),
     createdAt: now,
     updatedAt: now,
   };
@@ -1230,7 +1249,7 @@ export function createGoal(state: AtlasState, input: CreateGoalInput): { state: 
       ...state,
       goals: [goal, ...state.goals],
       activities: [activity('user', 'You', `Created goal — ${goal.title}`, goal.objective, 'success'), ...state.activities],
-      toasts: [...state.toasts, makeToast('Goal created', goal.title, 'success')],
+      toasts: [...state.toasts, makeToast(t('Goal created'), goal.title, 'success')],
     },
     goal,
   };
@@ -1248,7 +1267,7 @@ export function maybeStartAmbientRun(state: AtlasState): AtlasState {
   if (!scout || scout.status === 'blocked') return state;
   const run = buildRun({
     agentId: 'a-scout',
-    objective: 'Morning prospect sweep',
+    objective: t('Morning prospect sweep'),
     kind: 'scout-sweep',
     steps: scoutSweepPlan(),
     createdBy: 'atlas',

@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Link2, RotateCcw, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { Globe, Link2, RotateCcw, ShieldCheck, User as UserIcon } from 'lucide-react';
 import { PERMISSION_LEVELS } from '@/lib/atlas/constants';
 import { useAtlas } from '@/lib/atlas/store';
 import type { ApprovalLevel, Currency, Integration } from '@/lib/atlas/types';
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Field, Input, Select } from '@/components/ui/inputs';
 import { ConnectIntegrationModal } from '@/components/settings/connect-integration-modal';
+import { LOCALES, t, type Locale } from '@/lib/i18n';
 
 function ProfileSection() {
   const { state, updateProfile, toast } = useAtlas();
@@ -29,31 +30,70 @@ function ProfileSection() {
     <Surface>
       <div className="mb-4 flex items-center gap-2.5">
         <UserIcon className="h-4 w-4 text-text-3" aria-hidden />
-        <h3 className="text-sm font-semibold">Profile</h3>
+        <h3 className="text-sm font-semibold">{t('Profile')}</h3>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Name">
+        <Field label={t('Name')}>
           <Input value={name} onChange={(e) => setName(e.target.value)} />
         </Field>
-        <Field label="Email">
+        <Field label={t('Email')}>
           <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
         </Field>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-text-3">
-          <span>Timezone · {state.user.timezone}</span>
-          <span>Role · {state.user.role}</span>
+          <span>{t('Timezone ·')} {state.user.timezone}</span>
+          <span>{t('Role ·')} {state.user.role}</span>
         </div>
         <Button
           variant="subtle"
           size="sm"
           onClick={() => {
             updateProfile({ name: name.trim() || state.user.name, email: email.trim() || state.user.email });
-            toast('Profile saved', 'ATLAS greets you by name.', 'success');
+            toast(t('Profile saved'), t('ATLAS greets you by name.'), 'success');
           }}
         >
-          Save profile
+          {t('Save profile')}
         </Button>
+      </div>
+    </Surface>
+  );
+}
+
+function LanguageSection() {
+  const { state, setLanguage } = useAtlas();
+  const current = state.preferences.language;
+  return (
+    <Surface>
+      <div className="mb-4 flex items-center gap-2.5">
+        <Globe className="h-4 w-4 text-text-3" aria-hidden />
+        <h3 className="text-sm font-semibold">{t('Language')}</h3>
+      </div>
+      <p className="mb-3 text-xs text-text-3">
+        {t('Portuguese is the official language of ATLAS. Switching reloads the demo data in the new language — your goals and memories are kept.')}
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {LOCALES.map((loc) => {
+          const active = current === loc.id;
+          return (
+            <button
+              key={loc.id}
+              onClick={() => setLanguage(loc.id as Locale)}
+              aria-pressed={active}
+              className={`flex items-center justify-between rounded-lg border px-3.5 py-3 text-left transition-colors ${
+                active
+                  ? 'border-accent/50 bg-accent/10 text-text'
+                  : 'border-border bg-surface2 text-text-2 hover:border-border-strong hover:text-text'
+              }`}
+            >
+              <span className="flex items-center gap-2.5">
+                <span className="text-base" aria-hidden>{loc.flag}</span>
+                <span className="text-sm font-medium">{loc.label}</span>
+              </span>
+              {active && <span className="font-mono text-[10px] uppercase tracking-wider text-accent">{t('Active')}</span>}
+            </button>
+          );
+        })}
       </div>
     </Surface>
   );
@@ -66,50 +106,50 @@ function PreferencesSection() {
     <Surface>
       <div className="mb-4 flex items-center gap-2.5">
         <ShieldCheck className="h-4 w-4 text-text-3" aria-hidden />
-        <h3 className="text-sm font-semibold">Preferences</h3>
+        <h3 className="text-sm font-semibold">{t('Preferences')}</h3>
       </div>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Field label="Default agent permission level" hint="Agents never exceed this without approval.">
+        <Field label={t('Default agent permission level')} hint={t('Agents never exceed this without approval.')}>
           <Select
             value={prefs.defaultPermissionLevel}
             onChange={(e) => updatePreferences({ defaultPermissionLevel: Number(e.target.value) as ApprovalLevel })}
           >
             {PERMISSION_LEVELS.map((p) => (
               <option key={p.level} value={p.level}>
-                {p.short} · {p.name}
+                {p.short} · {t(p.nameKey)}
               </option>
             ))}
           </Select>
         </Field>
-        <Field label="Currency">
+        <Field label={t('Currency')}>
           <Select
             value={prefs.currency}
             onChange={(e) => updatePreferences({ currency: e.target.value as Currency })}
           >
-            <option value="EUR">EUR · Euro</option>
-            <option value="USD">USD · US Dollar</option>
-            <option value="GBP">GBP · British Pound</option>
+            <option value="EUR">{t('EUR · Euro')}</option>
+            <option value="USD">{t('USD · US Dollar')}</option>
+            <option value="GBP">{t('GBP · British Pound')}</option>
           </Select>
         </Field>
-        <Field label="Daily briefing time">
+        <Field label={t('Daily briefing time')}>
           <Input
             type="time"
             value={prefs.briefingTime}
             onChange={(e) => updatePreferences({ briefingTime: e.target.value })}
           />
         </Field>
-        <Field label="Week starts on">
+        <Field label={t('Week starts on')}>
           <Select
             value={prefs.weekStartsOn}
             onChange={(e) => updatePreferences({ weekStartsOn: Number(e.target.value) as 0 | 1 })}
           >
-            <option value={1}>Monday</option>
-            <option value={0}>Sunday</option>
+            <option value={1}>{t('Monday')}</option>
+            <option value={0}>{t('Sunday')}</option>
           </Select>
         </Field>
       </div>
       <label className="mt-4 flex items-center justify-between gap-3 rounded-lg border border-border bg-surface2 px-3.5 py-3">
-        <span className="text-sm text-text-2">Enable the daily intelligence briefing</span>
+        <span className="text-sm text-text-2">{t('Enable the daily intelligence briefing')}</span>
         <input
           type="checkbox"
           checked={prefs.briefingEnabled}
@@ -128,10 +168,10 @@ function IntegrationsSection({ onConnect }: { onConnect: (i: Integration) => voi
     <Surface>
       <div className="mb-4 flex items-baseline justify-between">
         <div>
-          <h3 className="text-sm font-semibold">Integrations</h3>
+          <h3 className="text-sm font-semibold">{t('Integrations')}</h3>
           <p className="mt-0.5 text-xs text-text-3">
             {connected === 0
-              ? 'Nothing connected. ATLAS prepares everything; integrations let it act.'
+              ? t('Nothing connected. ATLAS prepares everything; integrations let it act.')
               : `${connected} connected.`}
           </p>
         </div>
@@ -154,12 +194,12 @@ function IntegrationsSection({ onConnect }: { onConnect: (i: Integration) => voi
             </div>
             <div className="flex shrink-0 flex-col items-end gap-1.5">
               {integration.connected ? (
-                <Badge tone="success">CONNECTED</Badge>
+                <Badge tone="success">{t('CONNECTED')}</Badge>
               ) : (
                 <>
-                  <Badge tone="neutral">NOT CONNECTED</Badge>
+                  <Badge tone="neutral">{t('NOT CONNECTED')}</Badge>
                   <Button variant="ghost" size="sm" onClick={() => onConnect(integration)}>
-                    <Link2 className="h-3 w-3" /> Connect
+                    <Link2 className="h-3 w-3" /> {t('Connect')}
                   </Button>
                 </>
               )}
@@ -169,8 +209,7 @@ function IntegrationsSection({ onConnect }: { onConnect: (i: Integration) => voi
         })}
       </div>
       <p className="mt-4 text-xs leading-relaxed text-text-3">
-        Adapters are implemented behind clean boundaries. Tokens are encrypted at rest and never exposed
-        client-side. Unconnected integrations are shown honestly — ATLAS never fakes a connection.
+        {t('Adapters are implemented behind clean boundaries. Tokens are encrypted at rest and never exposed client-side. Unconnected integrations are shown honestly — ATLAS never fakes a connection.')}
       </p>
     </Surface>
   );
@@ -181,7 +220,7 @@ function PermissionLevelsSection() {
     <Surface>
       <div className="mb-4 flex items-center gap-2.5">
         <ShieldCheck className="h-4 w-4 text-text-3" aria-hidden />
-        <h3 className="text-sm font-semibold">Permission architecture</h3>
+        <h3 className="text-sm font-semibold">{t('Permission architecture')}</h3>
       </div>
       <div className="space-y-2">
         {PERMISSION_LEVELS.map((p) => (
@@ -190,15 +229,14 @@ function PermissionLevelsSection() {
               {p.short}
             </span>
             <div className="min-w-0">
-              <p className="text-sm font-medium">{p.name}</p>
-              <p className="text-xs text-text-3">{p.description}</p>
+              <p className="text-sm font-medium">{t(p.nameKey)}</p>
+              <p className="text-xs text-text-3">{t(p.descriptionKey)}</p>
             </div>
           </div>
         ))}
       </div>
       <p className="mt-4 text-xs leading-relaxed text-text-3">
-        Sending messages, publishing content, deploying and spending money require approval by default.
-        Deleting data always requires explicit approval. Audit logs record every decision.
+        {t('Sending messages, publishing content, deploying and spending money require approval by default. Deleting data always requires explicit approval. Audit logs record every decision.')}
       </p>
     </Surface>
   );
@@ -209,9 +247,9 @@ function DangerZone() {
   const router = useRouter();
   return (
     <Surface className="border-error/25">
-      <h3 className="text-sm font-semibold text-error">Demo data</h3>
+      <h3 className="text-sm font-semibold text-error">{t('Demo data')}</h3>
       <p className="mt-1 text-xs text-text-3">
-        Reset ATLAS to its initial state. This clears locally stored state and restores the seed.
+        {t('Reset ATLAS to its initial state. This clears locally stored state and restores the seed.')}
       </p>
       <div className="mt-3">
         <Button
@@ -222,7 +260,7 @@ function DangerZone() {
             router.refresh();
           }}
         >
-          <RotateCcw className="h-3.5 w-3.5" /> Reset demo data
+          <RotateCcw className="h-3.5 w-3.5" /> {t('Reset demo data')}
         </Button>
       </div>
     </Surface>
@@ -249,13 +287,14 @@ function SettingsContent() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Settings"
-        title="Settings"
-        description="Your profile, preferences, integrations and permission boundaries."
+        eyebrow={t('Settings')}
+        title={t('Settings')}
+        description={t('Your profile, preferences, integrations and permission boundaries.')}
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ProfileSection />
+        <LanguageSection />
         <PreferencesSection />
         <IntegrationsSection onConnect={setConnectTarget} />
         <PermissionLevelsSection />

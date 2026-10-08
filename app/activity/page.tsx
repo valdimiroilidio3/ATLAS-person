@@ -8,12 +8,13 @@ import { Activity as ActivityIcon, CheckCircle2, AlertTriangle, Info, ShieldAler
 import { ACTIVITY_KIND_META } from '@/lib/atlas/constants';
 import { useAtlas } from '@/lib/atlas/store';
 import { summarizeActivity } from '@/lib/atlas/engine';
-import { formatTime, isToday, isYesterday } from '@/lib/atlas/format';
+import { formatDate, formatTime, isToday, isYesterday } from '@/lib/atlas/format';
 import type { ActivityEvent } from '@/lib/atlas/types';
 import { cn } from '@/lib/utils';
 import { SectionHeader, Surface } from '@/components/ui/surface';
 import { EmptyState } from '@/components/ui/empty-state';
 import { VirtualList } from '@/components/ui/virtual-list';
+import { t } from '@/lib/i18n';
 
 const ROW_HEIGHT = 64;
 
@@ -22,7 +23,7 @@ function ActivityRow({ event }: { event: ActivityEvent }) {
   return (
     <div className="flex h-full items-center gap-4 border-b border-border/60 px-5">
       <span className="w-14 shrink-0 font-mono text-[11px] tabular text-text-3">
-        {isToday(event.time) ? formatTime(event.time) : isYesterday(event.time) ? 'Yest.' : formatTime(event.time)}
+        {isToday(event.time) ? formatTime(event.time) : isYesterday(event.time) ? t('Yesterday') : formatDate(event.time)}
       </span>
       <span
         className={cn(
@@ -48,7 +49,7 @@ function ActivityRow({ event }: { event: ActivityEvent }) {
         {event.detail && <p className="truncate text-xs text-text-3">{event.detail}</p>}
       </div>
       <span className="hidden shrink-0 font-mono text-[10px] uppercase tracking-wider text-text-3 sm:block">
-        {kindMeta.label}
+        {t(kindMeta.labelKey)}
       </span>
     </div>
   );
@@ -81,14 +82,14 @@ export default function ActivityPage() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Chronological stream"
-        title="Activity"
-        description="Everything ATLAS and its agents have done — with meaningful context."
+        eyebrow={t('Chronological stream')}
+        title={t('Activity')}
+        description={t('Everything ATLAS and its agents have done — with meaningful context.')}
       />
 
       <div className="grid grid-cols-3 gap-3">
-        <SummaryChip label="completed today" value={summary.completedToday} tone="success" />
-        <SummaryChip label="awaiting approval" value={summary.awaitingApproval} tone="warning" />
+        <SummaryChip label={t('completed today')} value={summary.completedToday} tone="success" />
+        <SummaryChip label={t('awaiting approval')} value={summary.awaitingApproval} tone="warning" />
         <SummaryChip label="blocked" value={summary.blocked} tone="error" />
       </div>
 
@@ -96,8 +97,8 @@ export default function ActivityPage() {
         {events.length === 0 ? (
           <EmptyState
             icon={ActivityIcon}
-            title="No activity yet"
-            description="When ATLAS and its agents do work, it shows up here — every run, approval and decision."
+            title={t('No activity yet')}
+            description={t('When ATLAS and its agents do work, it shows up here — every run, approval and decision.')}
           />
         ) : (
           <div style={{ height: Math.min(640, Math.max(320, events.length * ROW_HEIGHT)) }}>
@@ -120,7 +121,7 @@ export default function ActivityPage() {
       </Surface>
 
       <p className="text-xs text-text-3">
-        The feed is windowed for performance — scroll to load more of history.
+        {t('The feed is windowed for performance — scroll to load more of history.')}
       </p>
     </div>
   );

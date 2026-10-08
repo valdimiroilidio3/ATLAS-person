@@ -12,6 +12,7 @@ import {
 import { useAtlas } from '@/lib/atlas/store';
 import type { Toast as ToastType } from '@/lib/atlas/types';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 
 const toneMeta: Record<ToastType['tone'], { icon: LucideIcon; iconClass: string; barClass: string }> = {
   info: { icon: Info, iconClass: 'text-text-2', barClass: 'bg-text-3' },
@@ -43,7 +44,7 @@ function ToastItem({ toast }: { toast: ToastType }) {
         </div>
         <button
           onClick={() => dismissToast(toast.id)}
-          aria-label="Dismiss notification"
+          aria-label={t('Dismiss notification')}
           className="rounded-md p-1 text-text-3 transition-colors hover:bg-white/[0.06] hover:text-text"
         >
           <X className="h-3.5 w-3.5" />
@@ -60,7 +61,7 @@ export function Toaster() {
     <div
       className="fixed bottom-5 right-5 z-[100] flex flex-col items-end gap-2"
       aria-live="polite"
-      aria-label="Notifications"
+      aria-label={t('Notifications')}
     >
       <AnimatePresence mode="popLayout">
         {toasts.map((t) => (

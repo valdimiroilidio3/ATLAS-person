@@ -26,6 +26,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress';
 import { EmptyState } from '@/components/ui/empty-state';
+import { t } from '@/lib/i18n';
 
 function stepIcon(step: RunStep, runStatus: AgentRun['status']) {
   if (step.status === 'done') return <Check className="h-3.5 w-3.5 text-success" aria-hidden />;
@@ -63,12 +64,12 @@ function RunCard({ run, onOpen }: { run: AgentRun; onOpen: (r: AgentRun) => void
               {agent?.name ?? 'ATLAS'}
             </span>
             <Badge tone={meta.tone} pulse={run.status === 'executing' || run.status === 'thinking'}>
-              {meta.label}
+              {t(meta.labelKey)}
             </Badge>
           </div>
           <h3 className="mt-2 text-sm font-semibold leading-snug">{run.objective}</h3>
           <p className="mt-0.5 text-xs text-text-3">
-            Started {isToday(run.startedAt) ? formatTime(run.startedAt) : formatDate(run.startedAt)} · {run.createdBy === 'atlas' ? 'initiated by ATLAS' : 'initiated by you'}
+            {t('Started')} {isToday(run.startedAt) ? formatTime(run.startedAt) : formatDate(run.startedAt)} · {run.createdBy === 'atlas' ? 'initiated by ATLAS' : 'initiated by you'}
           </p>
         </div>
         <span className="shrink-0 font-mono text-sm tabular text-text-2">{run.progress}%</span>
@@ -97,7 +98,7 @@ function RunCard({ run, onOpen }: { run: AgentRun; onOpen: (r: AgentRun) => void
             </span>
             {step.requiresApproval && (
               <span className="ml-auto shrink-0 rounded border border-warning/25 bg-warning/10 px-1 py-px font-mono text-[9px] uppercase tracking-wider text-warning">
-                approval
+                {t('approval')}
               </span>
             )}
           </li>
@@ -122,20 +123,20 @@ function RunCard({ run, onOpen }: { run: AgentRun; onOpen: (r: AgentRun) => void
         {run.status === 'waiting-approval' && waitingApproval && (
           <>
             <Button variant="ghost" size="sm" onClick={openApprovalCenter}>
-              Approval Center
+              {t('Approval Center')}
             </Button>
             <Button variant="primary" size="sm" onClick={() => approve(waitingApproval.id)}>
-              <Check className="h-3 w-3" /> Approve
+              <Check className="h-3 w-3" /> {t('Approve')}
             </Button>
           </>
         )}
         {run.status === 'blocked' && blockedStep?.integrationId && (
           <Button variant="subtle" size="sm" onClick={() => onOpen(run)}>
-            Review blocker
+            {t('Review blocker')}
           </Button>
         )}
         <Button variant="ghost" size="sm" onClick={() => onOpen(run)}>
-          Inspect
+          {t('Inspect')}
         </Button>
       </div>
     </motion.article>
@@ -157,13 +158,13 @@ export default function ExecutionPage() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Mission control"
-        title="Execution"
-        description="Every agent run, live. ATLAS distinguishes thinking, preparing, executing, approval, blocked and completed."
+        eyebrow={t('Mission control')}
+        title={t('Execution')}
+        description={t('Every agent run, live. ATLAS distinguishes thinking, preparing, executing, approval, blocked and completed.')}
         action={
           nba ? (
             <Button variant="primary" size="sm" onClick={() => openExecutionPreview(nba.plan)}>
-              <Plus className="h-3.5 w-3.5" /> Execute next best action
+              <Plus className="h-3.5 w-3.5" /> {t('Execute next best action')}
             </Button>
           ) : undefined
         }
@@ -175,7 +176,7 @@ export default function ExecutionPage() {
           const meta = RUN_STATUS_META[s];
           return (
             <span key={s} className="inline-flex items-center gap-1.5 text-xs text-text-3">
-              <Badge tone={meta.tone}>{meta.label}</Badge>
+              <Badge tone={meta.tone}>{t(meta.labelKey)}</Badge>
             </span>
           );
         })}
@@ -185,12 +186,12 @@ export default function ExecutionPage() {
         <Surface padding={false}>
           <EmptyState
             icon={Gauge}
-            title="Nothing running"
-            description="Start the next best action or run an agent. ATLAS will coordinate the work and pause for approvals."
+            title={t('Nothing running')}
+            description={t('Start the next best action or run an agent. ATLAS will coordinate the work and pause for approvals.')}
             action={
               nba ? (
                 <Button variant="primary" onClick={() => openExecutionPreview(nba.plan)}>
-                  <Play className="h-3.5 w-3.5" /> Execute — {nba.title}
+                  <Play className="h-3.5 w-3.5" /> {t('Execute —')} {nba.title}
                 </Button>
               ) : undefined
             }
@@ -200,7 +201,7 @@ export default function ExecutionPage() {
         <>
           {active.length > 0 && (
             <section>
-              <h3 className="eyebrow mb-3">In flight · {active.length}</h3>
+              <h3 className="eyebrow mb-3">{t('In flight ·')} {active.length}</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {active.map((run) => (
                   <RunCard key={run.id} run={run} onOpen={(r) => openExecutionRun(r.id)} />
@@ -211,7 +212,7 @@ export default function ExecutionPage() {
 
           {blocked.length > 0 && (
             <section>
-              <h3 className="eyebrow mb-3">Blocked · {blocked.length}</h3>
+              <h3 className="eyebrow mb-3">{t('Blocked ·')} {blocked.length}</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {blocked.map((run) => (
                   <RunCard key={run.id} run={run} onOpen={(r) => openExecutionRun(r.id)} />
@@ -222,7 +223,7 @@ export default function ExecutionPage() {
 
           {finished.length > 0 && (
             <section>
-              <h3 className="eyebrow mb-3">Finished · {finished.length}</h3>
+              <h3 className="eyebrow mb-3">{t('Finished ·')} {finished.length}</h3>
               <div className="grid gap-4 md:grid-cols-2">
                 {finished.map((run) => (
                   <RunCard key={run.id} run={run} onOpen={(r) => openExecutionRun(r.id)} />

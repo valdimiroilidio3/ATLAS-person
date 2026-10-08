@@ -4,6 +4,7 @@ import { useEffect, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 
 export function SlideOver({
   open,
@@ -58,7 +59,7 @@ export function SlideOver({
                 <h3 className="text-base font-semibold tracking-tight">{title}</h3>
                 <button
                   onClick={onClose}
-                  aria-label="Close"
+                  aria-label={t('Close')}
                   className="rounded-lg p-1.5 text-text-3 transition-colors hover:bg-white/[0.06] hover:text-text"
                 >
                   <X className="h-4 w-4" />

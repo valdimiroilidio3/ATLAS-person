@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from '@/components/ui/progress';
 import { EmptyState } from '@/components/ui/empty-state';
 import { GoalDetailSheet } from '@/components/goals/goal-detail-sheet';
+import { t } from '@/lib/i18n';
 
 const STATUS_TONE: Record<Goal['status'], 'success' | 'warning' | 'error' | 'accent'> = {
   'on-track': 'success',
@@ -45,7 +46,7 @@ function GoalCard({ goal, onOpen, featured = false }: { goal: Goal; onOpen: (g: 
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="eyebrow">{featured ? 'Primary goal' : 'Goal'}</p>
+          <p className="eyebrow">{featured ? t('Primary goal') : t('Goal')}</p>
           <h3 className={cn('mt-1 font-semibold tracking-tight', featured ? 'text-xl' : 'text-base')}>
             {goal.title}
           </h3>
@@ -66,8 +67,8 @@ function GoalCard({ goal, onOpen, featured = false }: { goal: Goal; onOpen: (g: 
       </div>
 
       <div className="mt-4 flex items-center justify-between text-xs text-text-3">
-        <span>{daysLeft(goal.deadline)} days left · {formatDate(goal.deadline)}</span>
-        <span className="group-hover:text-text-2">{goal.milestones.filter((m) => m.status === 'done').length}/{goal.milestones.length} milestones</span>
+        <span>{daysLeft(goal.deadline)} {t('days left ·')} {formatDate(goal.deadline)}</span>
+        <span className="group-hover:text-text-2">{goal.milestones.filter((m) => m.status === 'done').length}/{goal.milestones.length} {t('milestones')}</span>
       </div>
     </motion.button>
   );
@@ -83,12 +84,12 @@ export default function GoalsPage() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Goal operating system"
-        title="Goals"
-        description="Objectives, targets, assumptions and strategy — measured, not wished for."
+        eyebrow={t('Goal operating system')}
+        title={t('Goals')}
+        description={t('Objectives, targets, assumptions and strategy — measured, not wished for.')}
         action={
           <Button variant="primary" size="sm" onClick={openCreateGoal}>
-            <Plus className="h-3.5 w-3.5" /> New goal
+            <Plus className="h-3.5 w-3.5" /> {t('New goal')}
           </Button>
         }
       />
@@ -97,11 +98,11 @@ export default function GoalsPage() {
         <Surface padding={false}>
           <EmptyState
             icon={Target}
-            title="No goals yet"
-            description="Give ATLAS something worth optimizing. A goal becomes a strategy, milestones and a next best action."
+            title={t('No goals yet')}
+            description={t('Give ATLAS something worth optimizing. A goal becomes a strategy, milestones and a next best action.')}
             action={
               <Button variant="primary" onClick={openCreateGoal}>
-                <Plus className="h-3.5 w-3.5" /> Create your first goal
+                <Plus className="h-3.5 w-3.5" /> {t('Create your first goal')}
               </Button>
             }
           />
@@ -122,7 +123,7 @@ export default function GoalsPage() {
               <div className="flex items-start gap-3">
                 <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-accent" aria-hidden />
                 <div>
-                  <p className="eyebrow mb-1 text-accent/80">ATLAS recommends</p>
+                  <p className="eyebrow mb-1 text-accent/80">{t('ATLAS recommends')}</p>
                   <p className="text-sm leading-relaxed text-text">{primary.aiRecommendation}</p>
                 </div>
               </div>

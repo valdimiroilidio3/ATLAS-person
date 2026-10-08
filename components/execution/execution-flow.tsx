@@ -31,6 +31,7 @@ import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from '@/components/ui/progress';
 import { ErrorState } from '@/components/ui/error-state';
 import type { AgentRun, RunStep } from '@/lib/atlas/types';
+import { t } from '@/lib/i18n';
 
 function StepIcon({ step, runStatus }: { step: RunStep; runStatus: AgentRun['status'] }) {
   if (step.status === 'done') return <Check className="h-4 w-4 text-success" aria-hidden />;
@@ -78,8 +79,7 @@ function StepRow({ step, index, runStatus }: { step: RunStep; index: number; run
         {step.requiresApproval && (
           <p className="mt-1">
             <span className="inline-flex items-center gap-1 rounded border border-warning/25 bg-warning/10 px-1.5 py-px font-mono text-[10px] uppercase tracking-wider text-warning">
-              <ShieldAlert className="h-2.5 w-2.5" /> {permissionShort(step.approvalLevel ?? 3)} · your approval
-              required
+              <ShieldAlert className="h-2.5 w-2.5" /> {permissionShort(step.approvalLevel ?? 3)} {t('· your approval required')}
             </span>
           </p>
         )}
@@ -127,7 +127,7 @@ export default function ExecutionFlow() {
       <div className="border-b border-border px-6 py-4">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0">
-            <p className="eyebrow">{live ? 'Execution · live' : 'Execution plan · preview'}</p>
+            <p className="eyebrow">{live ? t('Execution · live') : t('Execution plan · preview')}</p>
             <h3 id="execution-flow-title" className="mt-1 truncate text-base font-semibold tracking-tight">
               {run?.objective ?? plan?.objective}
             </h3>
@@ -142,19 +142,19 @@ export default function ExecutionFlow() {
                 <span className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface2 px-2 py-0.5 text-xs text-text-2">
                   <ShieldAlert className="h-3 w-3" />
                   {permissionShort(agent.permissionLevel)} ·{' '}
-                  {PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.name}
+                  {t(PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.nameKey ?? '')}
                 </span>
               )}
               {statusMeta && (
                 <Badge tone={statusMeta.tone} pulse={run?.status === 'executing' || run?.status === 'thinking'}>
-                  {statusMeta.label}
+                  {t(statusMeta.labelKey)}
                 </Badge>
               )}
             </div>
           </div>
           <button
             onClick={closeExecutionFlow}
-            aria-label="Close"
+            aria-label={t('Close')}
             className="rounded-lg p-1.5 text-text-3 transition-colors hover:bg-white/[0.06] hover:text-text"
           >
             <XCircle className="h-4 w-4" />
@@ -165,7 +165,7 @@ export default function ExecutionFlow() {
           <div className="mt-4">
             <div className="mb-1.5 flex items-center justify-between text-xs">
               <span className="text-text-3">
-                Step {Math.min(run.currentStepIndex + 1, run.steps.length)} of {run.steps.length}
+                {t('Step {current} of {total}', { current: Math.min(run.currentStepIndex + 1, run.steps.length), total: run.steps.length })}
               </span>
               <span className="font-mono tabular text-text-2">{run.progress}%</span>
             </div>
@@ -192,15 +192,15 @@ export default function ExecutionFlow() {
           <div className="mt-4">
             <ErrorState
               icon={PauseCircle}
-              title="Waiting for your approval"
+              title={t('Waiting for your approval')}
               reason={waitingApproval.description}
               action={
                 <div className="flex gap-2">
                   <Button variant="primary" size="sm" onClick={() => approve(waitingApproval.id)}>
-                    <Check className="h-3.5 w-3.5" /> Approve &amp; continue
+                    <Check className="h-3.5 w-3.5" /> {t('Approve & continue')}
                   </Button>
                   <Button variant="ghost" size="sm" onClick={openApprovalCenter}>
-                    Review in Approval Center
+                    {t('Review in Approval Center')}
                   </Button>
                 </div>
               }
@@ -224,11 +224,11 @@ export default function ExecutionFlow() {
                         router.push(`/settings?integration=${blockedIntegration.id}`);
                       }}
                     >
-                      Connect {blockedIntegration.name}
+                      {t('Connect')} {blockedIntegration.name}
                     </Button>
                   )}
                   <Button variant="ghost" size="sm" onClick={closeExecutionFlow}>
-                    Dismiss
+                    {t('Dismiss')}
                   </Button>
                 </div>
               }
@@ -244,7 +244,7 @@ export default function ExecutionFlow() {
           >
             <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-success" aria-hidden />
             <div>
-              <p className="text-sm font-medium">Execution completed</p>
+              <p className="text-sm font-medium">{t('Execution completed')}</p>
               <p className="mt-0.5 text-sm text-text-2">{run.result}</p>
             </div>
           </motion.div>
@@ -252,7 +252,7 @@ export default function ExecutionFlow() {
 
         {live && run && run.status === 'cancelled' && (
           <div className="mt-4">
-            <ErrorState title="Execution cancelled" reason={run.error ?? 'The run was cancelled.'} />
+            <ErrorState title={t('Execution cancelled')} reason={run.error ?? 'The run was cancelled.'} />
           </div>
         )}
       </div>
@@ -263,34 +263,34 @@ export default function ExecutionFlow() {
           <>
             <p className="mr-auto inline-flex items-center gap-1.5 text-xs text-text-3">
               <Clock className="h-3.5 w-3.5" />
-              Nothing runs until you start it. Sensitive steps pause for approval.
+              {t('Nothing runs until you start it. Sensitive steps pause for approval.')}
             </p>
             <Button variant="ghost" onClick={closeExecutionFlow}>
-              Cancel
+              {t('Cancel')}
             </Button>
             <Button variant="primary" onClick={handleStart}>
-              <Play className="h-3.5 w-3.5" /> Start execution
+              <Play className="h-3.5 w-3.5" /> {t('Start execution')}
             </Button>
           </>
         )}
         {live && run && ['completed', 'cancelled', 'blocked'].includes(run.status) && (
           <>
             <p className="mr-auto text-xs text-text-3">
-              {run.status === 'blocked' ? 'Resolve the blocker, then start a new run.' : 'This run has finished.'}
+              {run.status === 'blocked' ? t('Resolve the blocker, then start a new run.') : t('This run has finished.')}
             </p>
             <Button variant={run.status === 'completed' ? 'primary' : 'ghost'} onClick={closeExecutionFlow}>
-              Done
+              {t('Done')}
             </Button>
           </>
         )}
         {live && run && ['thinking', 'preparing', 'executing'].includes(run.status) && (
           <p className="mr-auto inline-flex items-center gap-1.5 text-xs text-text-3">
-            <Loader2 className="h-3.5 w-3.5 animate-spin" /> ATLAS is working — this updates live.
+            <Loader2 className="h-3.5 w-3.5 animate-spin" /> {t('ATLAS is working — this updates live.')}
           </p>
         )}
         {live && run && run.status === 'waiting-approval' && !waitingApproval && (
           <Button variant="ghost" onClick={closeExecutionFlow}>
-            Close
+            {t('Close')}
           </Button>
         )}
       </ModalFooter>

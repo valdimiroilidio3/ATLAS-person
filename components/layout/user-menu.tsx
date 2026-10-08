@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { LogOut, RotateCcw, Settings } from 'lucide-react';
 import { useAtlas } from '@/lib/atlas/store';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 
 export function UserMenu() {
   const { state, resetDemoData } = useAtlas();
@@ -34,7 +35,7 @@ export function UserMenu() {
         onClick={() => setOpen((v) => !v)}
         aria-haspopup="menu"
         aria-expanded={open}
-        aria-label="User menu"
+        aria-label={t('User menu')}
         className="flex h-8 w-8 items-center justify-center rounded-full border border-border-strong bg-surface2 text-[11px] font-medium text-text-2 transition-colors hover:border-accent/40 hover:text-text"
       >
         {initials}
@@ -62,7 +63,7 @@ export function UserMenu() {
                 }}
                 className={cn('flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-text-2 hover:bg-white/[0.05] hover:text-text')}
               >
-                <Settings className="h-4 w-4" /> Settings
+                <Settings className="h-4 w-4" /> {t('Settings')}
               </button>
               <button
                 role="menuitem"
@@ -72,11 +73,11 @@ export function UserMenu() {
                 }}
                 className={cn('flex w-full items-center gap-2.5 rounded-lg px-2.5 py-2 text-sm text-text-2 hover:bg-white/[0.05] hover:text-text')}
               >
-                <RotateCcw className="h-4 w-4" /> Reset demo data
+                <RotateCcw className="h-4 w-4" /> {t('Reset demo data')}
               </button>
             </div>
             <div className="border-t border-border px-4 py-2.5 text-[11px] text-text-3">
-              ATLAS · Personal AI Command Center
+              {t('ATLAS · Personal AI Command Center')}
             </div>
           </motion.div>
         )}

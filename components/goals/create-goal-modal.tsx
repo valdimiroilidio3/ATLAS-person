@@ -10,6 +10,7 @@ import type { Goal } from '@/lib/atlas/types';
 import { Modal, ModalFooter, ModalHeader } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Field, Input, Select, Textarea } from '@/components/ui/inputs';
+import { t } from '@/lib/i18n';
 
 const DEFAULT_DEADLINE = () => {
   const d = new Date(Date.now() + 90 * 86400000);
@@ -66,41 +67,41 @@ export default function CreateGoalModal() {
   return (
     <Modal open={ui.createGoalOpen} onClose={closeCreateGoal} maxWidth="max-w-lg" labelledBy="create-goal-title">
       <ModalHeader
-        eyebrow="Goal operating system"
-        title="Create a goal"
-        description="ATLAS structures the strategy, milestones and next actions around it."
+        eyebrow={t('Goal operating system')}
+        title={t('Create a goal')}
+        description={t('ATLAS structures the strategy, milestones and next actions around it.')}
         onClose={closeCreateGoal}
       />
       <div className="space-y-4 px-6 py-5">
-        <Field label="Goal title" hint="What are you optimizing for?">
+        <Field label={t('Goal title')} hint={t('What are you optimizing for?')}>
           <Input
             autoFocus
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="€1,000 monthly revenue"
+            placeholder={t('€1,000 monthly revenue')}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
           />
         </Field>
-        <Field label="Objective" hint="One sentence is enough.">
+        <Field label={t('Objective')} hint={t('One sentence is enough.')}>
           <Textarea
             value={objective}
             onChange={(e) => setObjective(e.target.value)}
-            placeholder="Reach €1,000 in monthly recurring revenue from premium websites and AI automation."
+            placeholder={t('Reach €1,000 in monthly recurring revenue from premium websites and AI automation.')}
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
-          <Field label="Unit">
+          <Field label={t('Unit')}>
             <Select value={unit} onChange={(e) => setUnit(e.target.value as Goal['unit'])}>
-              <option value="currency">Currency (€)</option>
-              <option value="count">Count</option>
-              <option value="percent">Percent</option>
+              <option value="currency">{t('Currency (€)')}</option>
+              <option value="count">{t('Count')}</option>
+              <option value="percent">{t('Percent')}</option>
             </Select>
           </Field>
-          <Field label="Target">
+          <Field label={t('Target')}>
             <Input value={target} onChange={(e) => setTarget(e.target.value)} inputMode="decimal" placeholder="1000" />
           </Field>
         </div>
-        <Field label="Deadline">
+        <Field label={t('Deadline')}>
           <Input type="date" value={deadline} onChange={(e) => setDeadline(e.target.value)} />
         </Field>
         {error && (
@@ -111,10 +112,10 @@ export default function CreateGoalModal() {
       </div>
       <ModalFooter>
         <Button variant="ghost" onClick={closeCreateGoal}>
-          Cancel
+          {t('Cancel')}
         </Button>
         <Button variant="primary" onClick={handleSubmit}>
-          <Target className="h-3.5 w-3.5" /> Create goal
+          <Target className="h-3.5 w-3.5" /> {t('Create goal')}
         </Button>
       </ModalFooter>
     </Modal>

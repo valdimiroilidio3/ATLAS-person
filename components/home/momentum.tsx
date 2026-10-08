@@ -3,6 +3,7 @@
 // MOMENTUM — spec §05. Goal progression with honest labels:
 // actual · projected · target — never fabricated financial data.
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { TrendingUp } from 'lucide-react';
 import { useAtlas } from '@/lib/atlas/store';
@@ -10,6 +11,9 @@ import { goalProgress } from '@/lib/atlas/engine';
 import { daysLeft, formatCurrency, formatDate } from '@/lib/atlas/format';
 import { ProgressBar } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
+import { fetchExchangeRates, type ExchangeRates } from '@/lib/api/client';
+import { isApiEnabled } from '@/lib/api/registry';
 
 function Stat({
   label,
@@ -37,6 +41,59 @@ function Stat({
   );
 }
 
+function LiveRates() {
+  const { state } = useAtlas();
+  const enabled =
+    state.apiConfig.features.liveRates && isApiEnabled(state.apiConfig.enabled, 'frankfurter');
+  const [rates, setRates] = useState<ExchangeRates | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    (async () => {
+      const result = await fetchExchangeRates();
+      if (cancelled) return;
+      if (result.ok && result.data) setRates(result.data);
+      else setFailed(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+
+  if (!enabled) {
+    return (
+      <div className="mt-6 hairline pt-5">
+        <p className="text-xs text-text-3">
+          {t('Live rates are off — enable “Live exchange rates” in the Admin · API Hub.')}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 hairline pt-5">
+      <p className="eyebrow mb-2">{t('Live rate · ECB')}</p>
+      {rates ? (
+        <p className="text-sm text-text-2">
+          {t('1 EUR = {usd} USD · {gbp} GBP', {
+            usd: rates.usd.toFixed(4),
+            gbp: rates.gbp.toFixed(4),
+          })}{' '}
+          <span className="text-text-3">
+            ({t('European Central Bank, via Frankfurter')} · {rates.date})
+          </span>
+        </p>
+      ) : failed ? (
+        <p className="text-sm text-warning">{t('Live rates unavailable from this network right now.')}</p>
+      ) : (
+        <p className="text-sm text-text-3">{t('Loading live rates…')}</p>
+      )}
+    </div>
+  );
+}
+
 export function Momentum() {
   const { state } = useAtlas();
   const goal = state.goals.find((g) => g.id === 'g-revenue') ?? state.goals[0];
@@ -52,7 +109,7 @@ export function Momentum() {
   return (
     <section>
       <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold tracking-tight">Momentum</h2>
+        <h2 className="text-lg font-semibold tracking-tight">{t('Momentum')}</h2>
         <span className="inline-flex items-center gap-1.5 text-xs text-text-3">
           <TrendingUp className="h-3.5 w-3.5" /> {goal.title}
         </span>
@@ -73,12 +130,12 @@ export function Momentum() {
               </span>
               <span className="text-lg text-text-3">
                 → {formatCurrency(goal.target, currency)}
-                {goal.unit === 'currency' ? ' / month' : ''}
+                {goal.unit === 'currency' ? t(' / month') : ''}
               </span>
             </div>
             <div className="mt-4">
               <div className="mb-1.5 flex items-center justify-between text-xs">
-                <span className="text-text-3">Progress</span>
+                <span className="text-text-3">{t('Progress')}</span>
                 <span className="font-mono tabular text-text-2">{progress}%</span>
               </div>
               <ProgressBar value={progress} height={8} />
@@ -86,17 +143,17 @@ export function Momentum() {
             <p className="mt-4 text-sm leading-relaxed text-text-2">
               {shortfall > 0 ? (
                 <>
-                  At your current trajectory you project{' '}
+                  {t('At your current trajectory you project')}{' '}
                   <span className="font-medium text-text">{formatCurrency(projected, currency)}</span> —{' '}
                   <span className="font-medium text-warning">
-                    {formatCurrency(shortfall, currency)} short
+                    {formatCurrency(shortfall, currency)} {t('short')}
                   </span>{' '}
-                  of target by {formatDate(goal.deadline)}.
+                  {t('of target by')} {formatDate(goal.deadline)}.
                 </>
               ) : (
                 <>
-                  Projected <span className="font-medium text-text">{formatCurrency(projected, currency)}</span>{' '}
-                  meets the target by {formatDate(goal.deadline)}.
+                  {t('Projected')} <span className="font-medium text-text">{formatCurrency(projected, currency)}</span>{' '}
+                  {t('meets the target by')} {formatDate(goal.deadline)}.
                 </>
               )}
             </p>
@@ -104,20 +161,22 @@ export function Momentum() {
 
           {/* Right: the numbers, honestly labelled */}
           <div className="grid w-full max-w-md grid-cols-2 gap-2.5 lg:max-w-sm">
-            <Stat label="Actual · MTD" value={formatCurrency(goal.current, currency)} tone="accent" sub="this month" />
-            <Stat label="Target" value={formatCurrency(goal.target, currency)} sub="per month" />
+            <Stat label={t('Actual · MTD')} value={formatCurrency(goal.current, currency)} tone="accent" sub={t('this month')} />
+            <Stat label={t('Target')} value={formatCurrency(goal.target, currency)} sub={t('per month')} />
             <Stat
-              label="Projected"
+              label={t('Projected')}
               value={formatCurrency(projected, currency)}
-              sub="estimated"
+              sub={t('estimated')}
               tone={shortfall > 0 ? 'warning' : 'success'}
             />
-            <Stat label="Remaining gap" value={formatCurrency(gap, currency)} sub={`${remainingDays} days left`} />
+            <Stat label={t('Remaining gap')} value={formatCurrency(gap, currency)} sub={`${remainingDays} days left`} />
           </div>
         </div>
 
+        <LiveRates />
+
         <div className="mt-6 hairline pt-5">
-          <p className="eyebrow mb-2.5">Required pace · your assumptions</p>
+          <p className="eyebrow mb-2.5">{t('Required pace · your assumptions')}</p>
           <div className="flex flex-wrap gap-x-6 gap-y-1.5">
             {goal.assumptions.map((a) => (
               <span key={a} className="text-sm text-text-2">
@@ -126,8 +185,7 @@ export function Momentum() {
             ))}
           </div>
           <p className="mt-4 text-xs text-text-3">
-            This is a strategic planning interface based on user-defined assumptions — not financial advice.
-            Actuals come from connected sources only.
+            {t('This is a strategic planning interface based on user-defined assumptions — not financial advice. Actuals come from connected sources only.')}
           </p>
         </div>
       </motion.div>

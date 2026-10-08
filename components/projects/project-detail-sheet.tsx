@@ -2,6 +2,7 @@
 
 // Project detail sheet — spec §08.
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AlertTriangle, Check, Circle, CircleDot, Users } from 'lucide-react';
 import type { Project } from '@/lib/atlas/types';
@@ -14,6 +15,81 @@ import { SlideOver } from '@/components/ui/slide-over';
 import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from '@/components/ui/progress';
 import { ErrorState } from '@/components/ui/error-state';
+import { fetchGithubRepoStats, type GithubRepoStats } from '@/lib/api/client';
+import { isApiEnabled } from '@/lib/api/registry';
+import { t } from '@/lib/i18n';
+
+function GitHubStats({ repo }: { repo: string }) {
+  const { state } = useAtlas();
+  const enabled =
+    state.apiConfig.features.githubStats && isApiEnabled(state.apiConfig.enabled, 'github');
+  const [stats, setStats] = useState<GithubRepoStats | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!enabled || !repo) return;
+    let cancelled = false;
+    (async () => {
+      const r = await fetchGithubRepoStats(repo);
+      if (cancelled) return;
+      if (r.ok && r.data) setStats(r.data);
+      else setError(r.error ?? t('Unavailable'));
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled, repo]);
+
+  if (!enabled) return null;
+
+  return (
+    <div>
+      <p className="eyebrow mb-2">{t('GitHub · live')}</p>
+      {stats ? (
+        <div className="rounded-lg border border-border bg-surface2 p-3.5">
+          <div className="flex items-center justify-between gap-2">
+            <a
+              href={stats.url}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="truncate text-sm font-medium text-text hover:text-accent"
+            >
+              {stats.fullName}
+            </a>
+            {stats.language && <Badge tone="info">{stats.language}</Badge>}
+          </div>
+          {stats.description && <p className="mt-1 text-xs text-text-3">{stats.description}</p>}
+          <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <p className="text-sm font-semibold tabular text-text">{stats.stars.toLocaleString()}</p>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-text-3">{t('Stars')}</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold tabular text-text">{stats.forks.toLocaleString()}</p>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-text-3">{t('Forks')}</p>
+            </div>
+            <div>
+              <p className="text-sm font-semibold tabular text-text">{stats.openIssues.toLocaleString()}</p>
+              <p className="font-mono text-[10px] uppercase tracking-wider text-text-3">{t('Open issues')}</p>
+            </div>
+          </div>
+          {stats.pushedAt && (
+            <p className="mt-3 text-[11px] text-text-3">
+              {t('Last push')} · {formatDateLong(stats.pushedAt)}
+            </p>
+          )}
+          <p className="mt-1 text-[11px] text-text-3">api.github.com · {t('via server route — token never reaches the browser')}</p>
+        </div>
+      ) : error ? (
+        <p className="text-xs text-warning">
+          {t('GitHub stats unavailable: {error}', { error })}
+        </p>
+      ) : (
+        <p className="text-xs text-text-3">{t('Loading repository stats…')}</p>
+      )}
+    </div>
+  );
+}
 
 export function ProjectDetailSheet({ project, onClose }: { project: Project | null; onClose: () => void }) {
   const { state } = useAtlas();
@@ -31,7 +107,7 @@ export function ProjectDetailSheet({ project, onClose }: { project: Project | nu
       {project && meta && (
         <div className="flex-1 space-y-6 p-5">
           <div className="flex items-center justify-between">
-            <Badge tone={meta.tone}>{meta.label}</Badge>
+            <Badge tone={meta.tone}>{t(meta.labelKey)}</Badge>
             <span className="font-mono text-sm tabular text-text-2">{progress}%</span>
           </div>
           <ProgressBar value={progress} tone={project.status === 'blocked' ? 'error' : 'accent'} height={8} />
@@ -39,12 +115,14 @@ export function ProjectDetailSheet({ project, onClose }: { project: Project | nu
           <p className="text-sm leading-relaxed text-text-2">{project.objective}</p>
 
           {project.deadline && (
-            <p className="text-xs text-text-3">Deadline · {formatDateLong(project.deadline)} ({formatDate(project.deadline)})</p>
+            <p className="text-xs text-text-3">{t('Deadline ·')} {formatDateLong(project.deadline)} ({formatDate(project.deadline)})</p>
           )}
+
+          {state.apiConfig.githubRepo && <GitHubStats repo={state.apiConfig.githubRepo} />}
 
           {project.blockers.length > 0 && (
             <div className="space-y-2">
-              <p className="eyebrow">Blockers</p>
+              <p className="eyebrow">{t('Blockers')}</p>
               {project.blockers.map((b) => (
                 <ErrorState key={b.id} title={b.title} reason={b.reason} />
               ))}
@@ -52,7 +130,7 @@ export function ProjectDetailSheet({ project, onClose }: { project: Project | nu
           )}
 
           <div>
-            <p className="eyebrow mb-2">Milestones · {project.milestones.filter((m) => m.status === 'done').length}/{project.milestones.length}</p>
+            <p className="eyebrow mb-2">{t('Milestones ·')} {project.milestones.filter((m) => m.status === 'done').length}/{project.milestones.length}</p>
             <ul className="divide-y divide-border/60 rounded-lg border border-border">
               {project.milestones.map((m, i) => (
                 <motion.li
@@ -74,7 +152,7 @@ export function ProjectDetailSheet({ project, onClose }: { project: Project | nu
           </div>
 
           <div>
-            <p className="eyebrow mb-2">Agents</p>
+            <p className="eyebrow mb-2">{t('Agents')}</p>
             <div className="flex flex-wrap gap-2">
               {assignedAgents.map((a) => (
                 <span
@@ -89,13 +167,13 @@ export function ProjectDetailSheet({ project, onClose }: { project: Project | nu
           </div>
 
           <div>
-            <p className="eyebrow mb-2">Next action</p>
+            <p className="eyebrow mb-2">{t('Next action')}</p>
             <p className="text-sm text-text">{project.nextAction}</p>
           </div>
 
           {recentActivity.length > 0 && (
             <div>
-              <p className="eyebrow mb-2">Recent activity</p>
+              <p className="eyebrow mb-2">{t('Recent activity')}</p>
               <ul className="space-y-2">
                 {recentActivity.map((a) => (
                   <li key={a.id} className="text-sm text-text-2">

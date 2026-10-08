@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { ProgressBar } from '@/components/ui/progress';
 import { EmptyState } from '@/components/ui/empty-state';
 import { AgentDetailSheet } from '@/components/agents/agent-detail-sheet';
+import { t } from '@/lib/i18n';
 
 function AgentCard({ agent, onOpen }: { agent: Agent; onOpen: (a: Agent) => void }) {
   const { runAgent } = useAtlas();
@@ -38,7 +39,7 @@ function AgentCard({ agent, onOpen }: { agent: Agent; onOpen: (a: Agent) => void
           </div>
         </div>
         <Badge tone={tone} pulse={agent.status === 'running'}>
-          {meta.label}
+          {t(meta.labelKey)}
         </Badge>
       </div>
 
@@ -53,11 +54,11 @@ function AgentCard({ agent, onOpen }: { agent: Agent; onOpen: (a: Agent) => void
       <div className="mt-4 flex flex-wrap items-center gap-1.5">
         <span className="inline-flex items-center gap-1 rounded-md border border-border bg-surface2 px-2 py-0.5 text-[11px] text-text-3">
           <ShieldCheck className="h-3 w-3" />
-          {permissionShort(agent.permissionLevel)} · {PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.name}
+          {permissionShort(agent.permissionLevel)} · {t(PERMISSION_LEVELS.find((p) => p.level === agent.permissionLevel)?.nameKey ?? '')}
         </span>
         {agent.approvalRequired && (
           <span className="rounded-md border border-warning/25 bg-warning/10 px-2 py-0.5 text-[11px] text-warning">
-            approval required
+            {t('approval required')}
           </span>
         )}
       </div>
@@ -68,7 +69,7 @@ function AgentCard({ agent, onOpen }: { agent: Agent; onOpen: (a: Agent) => void
 
       <div className="mt-auto pt-5 flex items-center justify-between">
         <button onClick={() => onOpen(agent)} className="text-xs text-text-3 transition-colors hover:text-text-2">
-          View details
+          {t('View details')}
         </button>
         <Button
           variant="subtle"
@@ -77,7 +78,7 @@ function AgentCard({ agent, onOpen }: { agent: Agent; onOpen: (a: Agent) => void
             runAgent(agent.id, '');
           }}
         >
-          <Play className="h-3 w-3" /> Run
+          <Play className="h-3 w-3" /> {t('Run')}
         </Button>
       </div>
     </motion.article>
@@ -96,9 +97,9 @@ export default function AgentsPage() {
   return (
     <div className="py-8 space-y-8">
       <SectionHeader
-        eyebrow="Agent operating system"
-        title="Agents"
-        description="Six specialists. Each has a purpose, tools, a permission level and a live state."
+        eyebrow={t('Agent operating system')}
+        title={t('Agents')}
+        description={t('Six specialists. Each has a purpose, tools, a permission level and a live state.')}
       />
 
       {/* Status strip */}
@@ -113,7 +114,7 @@ export default function AgentsPage() {
               className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-1.5"
             >
               <Badge tone={meta.tone} pulse={s === 'running'}>
-                {meta.label}
+                {t(meta.labelKey)}
               </Badge>
               <span className="font-mono text-xs tabular text-text-2">{count}</span>
             </span>
@@ -125,8 +126,8 @@ export default function AgentsPage() {
         <Surface padding={false}>
           <EmptyState
             icon={Bot}
-            title="No agents configured"
-            description="ATLAS ships with SCOUT, RESEARCH, CONTENT, SEO, EXECUTION and DEPLOYMENT agents."
+            title={t('No agents configured')}
+            description={t('ATLAS ships with SCOUT, RESEARCH, CONTENT, SEO, EXECUTION and DEPLOYMENT agents.')}
           />
         </Surface>
       ) : (

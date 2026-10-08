@@ -10,10 +10,11 @@ import { useAtlas } from '@/lib/atlas/store';
 import { formatTime, isToday, isYesterday } from '@/lib/atlas/format';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
+import { t } from '@/lib/i18n';
 
 function dayLabel(iso: string): string {
-  if (isToday(iso)) return 'Today';
-  if (isYesterday(iso)) return 'Yesterday';
+  if (isToday(iso)) return t('Today');
+  if (isYesterday(iso)) return t('Yesterday');
   return new Date(iso).toLocaleDateString('en', { month: 'short', day: 'numeric' });
 }
 
@@ -34,9 +35,9 @@ export function HomeBottom() {
         className="surface p-5"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Agents</h3>
+          <h3 className="text-sm font-semibold">{t('Agents')}</h3>
           <Link href="/agents" className="text-xs text-text-3 hover:text-text-2">
-            View all
+            {t('View all')}
           </Link>
         </div>
         <ul className="space-y-2.5">
@@ -80,9 +81,9 @@ export function HomeBottom() {
         className="surface p-5"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Radar</h3>
+          <h3 className="text-sm font-semibold">{t('Radar')}</h3>
           <Link href="/radar" className="text-xs text-text-3 hover:text-text-2">
-            View all
+            {t('View all')}
           </Link>
         </div>
         <ul className="space-y-3">
@@ -90,7 +91,7 @@ export function HomeBottom() {
             const meta = INSIGHT_META[insight.type];
             return (
               <li key={insight.id}>
-                <Badge tone={meta.tone}>{meta.label}</Badge>
+                <Badge tone={meta.tone}>{t(meta.labelKey)}</Badge>
                 <p className="mt-1.5 text-[13px] font-medium leading-snug">{insight.title}</p>
                 <p className="mt-0.5 text-xs leading-snug text-text-2">{insight.recommendation}</p>
               </li>
@@ -107,9 +108,9 @@ export function HomeBottom() {
         className="surface p-5"
       >
         <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-semibold">Activity</h3>
+          <h3 className="text-sm font-semibold">{t('Activity')}</h3>
           <Link href="/activity" className="inline-flex items-center gap-1 text-xs text-text-3 hover:text-text-2">
-            View all <ArrowRight className="h-3 w-3" />
+            {t('View all')} <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
         <ul className="space-y-2.5">

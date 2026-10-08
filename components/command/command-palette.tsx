@@ -11,8 +11,10 @@ import {
   Brain,
   ChevronRight,
   Command as CommandIcon,
+  Globe,
   ListChecks,
   Loader2,
+  PlugZap,
   Search,
   Sparkles,
   Target,
@@ -24,6 +26,7 @@ import { useAtlas } from '@/lib/atlas/store';
 import { cn } from '@/lib/utils';
 import { IntentResult } from '@/components/brain/intent-result';
 import type { InterpretedIntent } from '@/lib/atlas/engine';
+import { t } from '@/lib/i18n';
 
 interface PaletteCommand {
   id: string;
@@ -69,6 +72,8 @@ export default function CommandPalette() {
     openExecutionRun,
     startNextBestAction,
     interpret,
+    setLanguage,
+    toast,
   } = useAtlas();
 
   const [query, setQuery] = useState('');
@@ -101,8 +106,8 @@ export default function CommandPalette() {
 
     list.push({
       id: 'ask',
-      label: 'Ask ATLAS…',
-      hint: 'natural language',
+      label: t('Ask ATLAS…'),
+      hint: t('natural language'),
       group: 'Ask ATLAS',
       icon: Brain,
       keywords: 'ask atlas ai brain objective intent plan strategy',
@@ -111,8 +116,8 @@ export default function CommandPalette() {
 
     list.push({
       id: 'execute-nba',
-      label: 'Execute next best action',
-      hint: 'highest-value action',
+      label: t('Execute next best action'),
+      hint: t('highest-value action'),
       group: 'Actions',
       icon: Sparkles,
       keywords: 'execute run do next best action highest value',
@@ -126,7 +131,7 @@ export default function CommandPalette() {
     });
     list.push({
       id: 'create-goal',
-      label: 'Create goal',
+      label: t('Create goal'),
       group: 'Actions',
       icon: Target,
       keywords: 'create goal new target objective',
@@ -137,7 +142,7 @@ export default function CommandPalette() {
     });
     list.push({
       id: 'review-approvals',
-      label: 'Review approvals',
+      label: t('Review approvals'),
       hint: `${state.approvals.filter((a) => a.status === 'pending').length} pending`,
       group: 'Actions',
       icon: ListChecks,
@@ -151,7 +156,7 @@ export default function CommandPalette() {
     for (const agent of state.agents) {
       list.push({
         id: `run-${agent.id}`,
-        label: `Run ${agent.name} agent`,
+        label: t('Run {agent} agent', { agent: agent.name }),
         hint: agent.purpose,
         group: 'Agents',
         icon: Bot,
@@ -166,10 +171,10 @@ export default function CommandPalette() {
     for (const item of NAV_ITEMS) {
       list.push({
         id: `go-${item.href}`,
-        label: item.href === '/' ? 'Go to Home' : `Go to ${item.label}`,
+        label: item.href === '/' ? t('Go to Home') : t('Go to {name}', { name: t(item.labelKey) }),
         group: 'Navigate',
         icon: item.icon,
-        keywords: `go navigate open ${item.label.toLowerCase()} page`,
+        keywords: `go navigate open ${t(item.labelKey).toLowerCase()} page`,
         perform: () => {
           closeCommandPalette();
           router.push(item.href);
@@ -177,9 +182,66 @@ export default function CommandPalette() {
       });
     }
 
+    // Language — Portuguese is the official language of ATLAS.
+    list.push({
+      id: 'lang-pt',
+      label: t('Idioma: Português'),
+      hint: t('official language'),
+      group: 'Actions',
+      icon: Globe,
+      keywords: 'language idioma portugues portuguese pt official idioma oficial',
+      perform: () => {
+        closeCommandPalette();
+        if (state.preferences.language !== 'pt') setLanguage('pt');
+        else toast(t('Language changed'), t('Portuguese is already active.'), 'info');
+      },
+    });
+    list.push({
+      id: 'lang-en',
+      label: t('Language: English'),
+      hint: t('switch language'),
+      group: 'Actions',
+      icon: Globe,
+      keywords: 'language idioma english inglês en switch trocar',
+      perform: () => {
+        closeCommandPalette();
+        if (state.preferences.language !== 'en') setLanguage('en');
+        else toast(t('Language changed'), t('English is already active.'), 'info');
+      },
+    });
+
+    // Live signals — jump to the Radar, where the live panel lives.
+    list.push({
+      id: 'refresh-signals',
+      label: t('Refresh live signals'),
+      hint: t('Hacker News · Stack Overflow · Dev.to · npm'),
+      group: 'Actions',
+      icon: Sparkles,
+      keywords: 'refresh reload signals live hacker news stack overflow dev.to npm radar atualizar sinais',
+      perform: () => {
+        closeCommandPalette();
+        router.push('/radar');
+        toast(t('Live signals'), t('The live panel reloads every time you open the Radar.'), 'info');
+      },
+    });
+
+    // API hub — test and manage every free API integration.
+    list.push({
+      id: 'test-apis',
+      label: t('Test APIs'),
+      hint: t('Admin · API Hub'),
+      group: 'Actions',
+      icon: PlugZap,
+      keywords: 'api apis test hub admin free github npm integration testar apis',
+      perform: () => {
+        closeCommandPalette();
+        router.push('/admin');
+      },
+    });
+
     return list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.agents, state.approvals]);
+  }, [state.agents, state.approvals, state.preferences.language]);
 
   const filtered = useMemo(() => {
     if (mode === 'ask' || !query.trim()) return commands;
@@ -304,7 +366,7 @@ export default function CommandPalette() {
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Command bar"
+            aria-label={t('Command bar')}
             initial={{ opacity: 0, scale: 0.98, y: -8 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.98, y: -6 }}
@@ -323,8 +385,8 @@ export default function CommandPalette() {
                   ref={inputRef}
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Type a command or search…"
-                  aria-label="Command bar"
+                  placeholder={t('Type a command or search…')}
+                  aria-label={t('Command bar')}
                   className="h-12 flex-1 bg-transparent text-sm text-text placeholder:text-text-3 focus:outline-none"
                 />
               ) : (
@@ -332,8 +394,8 @@ export default function CommandPalette() {
                   ref={askInputRef}
                   value={askInput}
                   onChange={(e) => setAskInput(e.target.value)}
-                  placeholder="Ask ATLAS — “Launch my website.”"
-                  aria-label="Ask ATLAS"
+                  placeholder={t('Ask ATLAS — “Launch my website.”')}
+                  aria-label={t('Ask ATLAS')}
                   className="h-12 flex-1 bg-transparent text-sm text-text placeholder:text-text-3 focus:outline-none"
                 />
               )}
@@ -342,7 +404,7 @@ export default function CommandPalette() {
                   onClick={() => setMode('ask')}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface2 px-2 py-1 text-[11px] text-text-2 transition-colors hover:border-border-strong hover:text-text"
                 >
-                  <Brain className="h-3 w-3" /> Ask ATLAS
+                  <Brain className="h-3 w-3" /> {t('Ask ATLAS')}
                 </button>
               ) : (
                 <button
@@ -353,12 +415,12 @@ export default function CommandPalette() {
                   }}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-surface2 px-2 py-1 text-[11px] text-text-2 transition-colors hover:border-border-strong hover:text-text"
                 >
-                  <CommandIcon className="h-3 w-3" /> Commands
+                  <CommandIcon className="h-3 w-3" /> {t('Commands')}
                 </button>
               )}
               <button
                 onClick={closeCommandPalette}
-                aria-label="Close command bar"
+                aria-label={t('Close command bar')}
                 className="rounded-md p-1 text-text-3 transition-colors hover:bg-white/[0.06] hover:text-text"
               >
                 <X className="h-4 w-4" />
@@ -371,13 +433,13 @@ export default function CommandPalette() {
                 <>
                   {grouped.length === 0 && (
                     <div className="px-4 py-8 text-center text-sm text-text-3">
-                      No commands match “{query}”.
+                      {t('No commands match “')}{query}”.
                     </div>
                   )}
                   {grouped.map(({ group, items }) => (
                     <div key={group} className="mb-1">
                       <p className="px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-text-3">
-                        {group}
+                        {t(group)}
                       </p>
                       {items.map((cmd) => {
                         rowIndex += 1;
@@ -422,8 +484,7 @@ export default function CommandPalette() {
                   {!intent && !busy && (
                     <>
                       <p className="px-2 text-xs text-text-3">
-                        Describe an objective in plain language. ATLAS converts it into a structured plan —
-                        nothing is executed without your approval.
+                        {t('Describe an objective in plain language. ATLAS converts it into a structured plan — nothing is executed without your approval.')}
                       </p>
                       <div className="flex flex-wrap gap-1.5 px-2">
                         {exampleChips.map((chip) => (
@@ -444,14 +505,14 @@ export default function CommandPalette() {
                         disabled={!askInput.trim()}
                         className="mx-2 inline-flex items-center gap-2 rounded-lg bg-accent px-3.5 py-2 text-sm font-medium text-[#171004] transition-colors hover:bg-accent-strong disabled:opacity-40"
                       >
-                        Ask ATLAS <ArrowRight className="h-3.5 w-3.5" />
+                        {t('Ask ATLAS')} <ArrowRight className="h-3.5 w-3.5" />
                       </button>
                     </>
                   )}
                   {busy && (
                     <div className="flex items-center gap-2.5 px-3 py-4 text-sm text-text-2">
                       <Loader2 className="h-4 w-4 animate-spin text-accent" />
-                      ATLAS is structuring your objective…
+                      {t('ATLAS is structuring your objective…')}
                     </div>
                   )}
                   {intent && (
@@ -483,7 +544,7 @@ export default function CommandPalette() {
                           }}
                           className="text-xs text-text-3 hover:text-text-2"
                         >
-                          Ask something else
+                          {t('Ask something else')}
                         </button>
                       </div>
                     </div>
@@ -497,13 +558,13 @@ export default function CommandPalette() {
               <div className="flex items-center gap-3">
                 <span className="inline-flex items-center gap-1">
                   <kbd className="kbd">↑</kbd>
-                  <kbd className="kbd">↓</kbd> navigate
+                  <kbd className="kbd">↓</kbd> {t('navigate')}
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <kbd className="kbd">⏎</kbd> select
+                  <kbd className="kbd">⏎</kbd> {t('select')}
                 </span>
                 <span className="inline-flex items-center gap-1">
-                  <kbd className="kbd">esc</kbd> close
+                  <kbd className="kbd">{t('esc')}</kbd> {t('close')}
                 </span>
               </div>
               <span className="font-mono">ATLAS</span>

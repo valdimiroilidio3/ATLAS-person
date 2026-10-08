@@ -18,6 +18,7 @@ import {
   type ReactNode,
 } from 'react';
 import type {
+  ApiFeatureToggles,
   ApprovalLevel,
   AtlasState,
   Currency,
@@ -27,6 +28,7 @@ import type {
   UserProfile,
 } from './types';
 import { seedState } from './seed';
+import { setLocale, translate, type Locale } from '@/lib/i18n';
 import {
   addMemoryEntry,
   agentPlan,
@@ -71,6 +73,16 @@ interface AtlasContextValue {
   state: AtlasState;
   hydrated: boolean;
   ui: AtlasUIState;
+
+  // localization
+  t: (key: string, params?: Record<string, string | number>) => string;
+  language: Locale;
+  setLanguage: (locale: Locale) => void;
+
+  // api hub (admin)
+  setApiEnabled: (apiId: string, enabled: boolean) => void;
+  setApiFeature: (feature: keyof ApiFeatureToggles, enabled: boolean) => void;
+  setGithubRepo: (repo: string) => void;
 
   // global UI
   openCommandPalette: () => void;
@@ -131,7 +143,15 @@ export function AtlasProvider({ children }: { children: ReactNode }) {
       const raw = window.localStorage.getItem(STORAGE_KEY);
       if (raw) {
         const parsed = JSON.parse(raw) as Partial<AtlasState>;
-        setState((s) => ({ ...s, ...parsed, toasts: [], hydrated: true }));
+        const lang = parsed.preferences?.language === 'en' ? 'en' : 'pt';
+        setLocale(lang);
+        setState((s) => ({
+          ...s,
+          ...parsed,
+          preferences: { ...s.preferences, ...parsed.preferences, language: lang },
+          toasts: [],
+          hydrated: true,
+        }));
         return;
       }
     } catch {
@@ -278,13 +298,81 @@ export function AtlasProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, preferences: { ...s.preferences, ...patch } }));
   }, []);
 
+  // ---- localization -------------------------------------------------------
+
+  /** Reactive translator bound to the active UI language. */
+  const t = useCallback(
+    (key: string, params?: Record<string, string | number>) =>
+      translate(key, params, stateRef.current.preferences.language),
+    [],
+  );
+
+  /**
+   * Switch the whole UI language. Demo content is re-seeded in the new
+   * language; user-created goals and memories are preserved (matched by
+   * id against the seed ids). Honest by design: the UI says demo data
+   * reloads on switch.
+   */
+  const setLanguage = useCallback((locale: Locale) => {
+    setLocale(locale);
+    setState((s) => {
+      const fresh = seedState(locale);
+      const SEED_GOAL_IDS = new Set(['g-revenue', 'g-launch', 'g-outbound']);
+      const userGoals = s.goals.filter((g) => !SEED_GOAL_IDS.has(g.id));
+      const userMemories = s.memories.filter((m) => !/^mem-\d+$/.test(m.id));
+      return {
+        ...fresh,
+        user: s.user,
+        preferences: { ...s.preferences, language: locale },
+        apiConfig: s.apiConfig,
+        goals: [...fresh.goals, ...userGoals],
+        memories: [...fresh.memories, ...userMemories],
+        toasts: [
+          ...s.toasts,
+          {
+            id: uid('toast'),
+            title: translate('Language changed', undefined, locale),
+            body: translate(
+              'Demo data reloaded in the new language. Your goals and memories were kept.',
+              undefined,
+              locale,
+            ),
+            tone: 'success' as const,
+            createdAt: new Date().toISOString(),
+            persistent: false,
+          },
+        ],
+      };
+    });
+  }, []);
+
+  // ---- api hub (admin) ------------------------------------------------------
+
+  const setApiEnabled = useCallback((apiId: string, enabled: boolean) => {
+    setState((s) => ({
+      ...s,
+      apiConfig: { ...s.apiConfig, enabled: { ...s.apiConfig.enabled, [apiId]: enabled } },
+    }));
+  }, []);
+
+  const setApiFeature = useCallback((feature: keyof ApiFeatureToggles, enabled: boolean) => {
+    setState((s) => ({
+      ...s,
+      apiConfig: { ...s.apiConfig, features: { ...s.apiConfig.features, [feature]: enabled } },
+    }));
+  }, []);
+
+  const setGithubRepo = useCallback((repo: string) => {
+    setState((s) => ({ ...s, apiConfig: { ...s.apiConfig, githubRepo: repo.trim() } }));
+  }, []);
+
   const resetDemoData = useCallback(() => {
     try {
       window.localStorage.removeItem(STORAGE_KEY);
     } catch {
       // ignore
     }
-    setState({ ...seedState(), hydrated: true });
+    setState({ ...seedState(stateRef.current.preferences.language), hydrated: true });
     setUI(initialUI);
   }, []);
 
@@ -318,6 +406,12 @@ export function AtlasProvider({ children }: { children: ReactNode }) {
       state,
       hydrated: state.hydrated,
       ui,
+      t,
+      language: state.preferences.language,
+      setLanguage,
+      setApiEnabled,
+      setApiFeature,
+      setGithubRepo,
       openCommandPalette,
       closeCommandPalette,
       toggleCommandPalette,
@@ -347,6 +441,11 @@ export function AtlasProvider({ children }: { children: ReactNode }) {
     [
       state,
       ui,
+      t,
+      setLanguage,
+      setApiEnabled,
+      setApiFeature,
+      setGithubRepo,
       openCommandPalette,
       closeCommandPalette,
       toggleCommandPalette,

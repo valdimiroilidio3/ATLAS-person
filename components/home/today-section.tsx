@@ -16,6 +16,7 @@ import {
 import { PROJECT_STATUS_META } from '@/lib/atlas/constants';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 
 interface TodayItem {
   key: string;
@@ -46,9 +47,9 @@ export function TodaySection() {
       priority: 'P1',
       title: 'SCOUT',
       context: `${approved.length} approved messages are ready — a connected channel is missing.`,
-      statusLabel: 'READY TO SEND',
+      statusLabel: t('READY TO SEND'),
       tone: 'warning',
-      actionLabel: 'Send',
+      actionLabel: t('Send'),
       icon: Users,
       onAction: () =>
         openExecutionPreview({
@@ -67,9 +68,9 @@ export function TodaySection() {
       priority: 'P1',
       title: 'SCOUT',
       context: `${fresh.length} high-intent prospects detected. Scored against your ICP.`,
-      statusLabel: 'ACTIONABLE',
+      statusLabel: t('ACTIONABLE'),
       tone: 'accent',
-      actionLabel: 'Execute',
+      actionLabel: t('Execute'),
       icon: Users,
       onAction: () => {
         const nba = deriveNextBestAction(state);
@@ -85,16 +86,16 @@ export function TodaySection() {
       priority: blocked ? 'P1' : 'P2',
       title: 'ORBITA',
       context: blocked
-        ? 'Launch blocked by deployment configuration — environment variables are missing.'
+        ? t('Launch blocked by deployment configuration — environment variables are missing.')
         : `Launch in progress — ${deriveProjectProgress(orbita)}% complete.`,
-      statusLabel: PROJECT_STATUS_META[orbita.status].label,
+      statusLabel: t(PROJECT_STATUS_META[orbita.status].labelKey),
       tone: blocked ? 'error' : 'accent',
-      actionLabel: blocked ? 'Resolve' : 'Review',
+      actionLabel: blocked ? t('Resolve') : t('Review'),
       icon: blocked ? AlertTriangle : Flame,
       onAction: () =>
         openExecutionPreview({
           agentId: 'a-execution',
-          objective: blocked ? 'Resolve the ORBITA deployment blocker' : 'Prepare and deploy ORBITA',
+          objective: blocked ? t('Resolve the ORBITA deployment blocker') : t('Prepare and deploy ORBITA'),
           kind: 'deploy',
           steps: deployPlan(orbita),
           linkedProjectId: orbita.id,
@@ -111,10 +112,10 @@ export function TodaySection() {
       title: 'WEAF',
       context: done
         ? `Product catalog complete — ${deriveProjectProgress(weaf)}%.`
-        : 'Product catalog requires completion — one item remains.',
-      statusLabel: done ? 'COMPLETED' : 'IN PROGRESS',
+        : t('Product catalog requires completion — one item remains.'),
+      statusLabel: done ? t('COMPLETED') : t('IN PROGRESS'),
       tone: done ? 'info' : 'warning',
-      actionLabel: done ? 'Completed' : 'Complete',
+      actionLabel: done ? t('Completed') : t('Complete'),
       icon: Package,
       disabled: done,
       onAction: done
@@ -122,7 +123,7 @@ export function TodaySection() {
         : () =>
             openExecutionPreview({
               agentId: 'a-content',
-              objective: 'Complete the WEAF catalog',
+              objective: t('Complete the WEAF catalog'),
               kind: 'catalog',
               steps: catalogPlan(weaf),
               linkedProjectId: weaf.id,
@@ -136,9 +137,9 @@ export function TodaySection() {
   return (
     <section>
       <div className="mb-4 flex items-baseline justify-between">
-        <h2 className="text-lg font-semibold tracking-tight">Today</h2>
+        <h2 className="text-lg font-semibold tracking-tight">{t('Today')}</h2>
         <p className="text-sm text-text-2">
-          {visible.length} {visible.length === 1 ? 'thing' : 'things'} need your attention.
+          {visible.length} {visible.length === 1 ? 'thing' : 'things'} {t('need your attention.')}
         </p>
       </div>
       <div className="grid gap-4 md:grid-cols-3">
@@ -162,7 +163,7 @@ export function TodaySection() {
             </div>
             <p className="mt-2.5 flex-1 text-sm leading-relaxed text-text-2">{item.context}</p>
             <div className="mt-4 hairline pt-4">
-              <p className="eyebrow mb-2">Recommended action</p>
+              <p className="eyebrow mb-2">{t('Recommended action')}</p>
               <Button
                 variant={item.key === 'scout' || item.key === 'send' ? 'primary' : 'ghost'}
                 size="sm"

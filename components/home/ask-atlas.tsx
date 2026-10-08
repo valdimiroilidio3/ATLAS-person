@@ -8,6 +8,7 @@ import { Brain, Loader2, Send } from 'lucide-react';
 import { useAtlas } from '@/lib/atlas/store';
 import type { InterpretedIntent } from '@/lib/atlas/engine';
 import { IntentResult } from '@/components/brain/intent-result';
+import { t } from '@/lib/i18n';
 
 const EXAMPLE_CHIPS = [
   'What should I do today?',
@@ -40,7 +41,7 @@ export function AskAtlas() {
     <section className="space-y-4">
       <div className="flex items-center gap-2">
         <Brain className="h-4 w-4 text-accent" aria-hidden />
-        <h2 className="text-lg font-semibold tracking-tight">Ask ATLAS</h2>
+        <h2 className="text-lg font-semibold tracking-tight">{t('Ask ATLAS')}</h2>
       </div>
 
       <div className="surface p-0 overflow-hidden">
@@ -52,14 +53,14 @@ export function AskAtlas() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') submit(input);
             }}
-            placeholder="Launch my new website.  ·  What should I do today?  ·  Why am I behind?"
-            aria-label="Ask ATLAS"
+            placeholder={t('Launch my new website. · What should I do today? · Why am I behind?')}
+            aria-label={t('Ask ATLAS')}
             className="h-12 flex-1 bg-transparent text-sm text-text placeholder:text-text-3 focus:outline-none"
           />
           <button
             onClick={() => submit(input)}
             disabled={!input.trim() || busy}
-            aria-label="Ask ATLAS"
+            aria-label={t('Ask ATLAS')}
             className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-accent text-[#171004] transition-colors hover:bg-accent-strong disabled:opacity-40"
           >
             {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
@@ -90,7 +91,7 @@ export function AskAtlas() {
             className="flex items-center gap-2.5 text-sm text-text-2"
           >
             <Loader2 className="h-4 w-4 animate-spin text-accent" />
-            ATLAS is structuring your objective…
+            {t('ATLAS is structuring your objective…')}
           </motion.div>
         )}
       </AnimatePresence>

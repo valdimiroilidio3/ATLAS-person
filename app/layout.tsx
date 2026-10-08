@@ -39,8 +39,8 @@ const mono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: 'ATLAS — Personal AI Command Center',
-  description: 'Turn goals and intentions into measurable execution.',
+  title: 'ATLAS — Centro de Comando Pessoal de IA',
+  description: 'Transforma objetivos e intenções em execução mensurável.',
   manifest: '/manifest.webmanifest',
   icons: { icon: '/icon.svg', apple: '/icon.svg' },
 };

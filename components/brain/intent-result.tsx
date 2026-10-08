@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Circle, CircleDot, Flag, GitBranch, ListChecks, Target } from 'lucide-react';
 import type { InterpretedIntent } from '@/lib/atlas/engine';
@@ -7,6 +8,10 @@ import { permissionShort } from '@/lib/atlas/constants';
 import { formatDateLong } from '@/lib/atlas/format';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { useAtlas } from '@/lib/atlas/store';
+import { fetchQuote } from '@/lib/api/client';
+import { isApiEnabled } from '@/lib/api/registry';
+import { t } from '@/lib/i18n';
 
 function ConfidenceMeter({ value }: { value: number }) {
   return (
@@ -19,7 +24,7 @@ function ConfidenceMeter({ value }: { value: number }) {
           transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </div>
-      <span className="font-mono text-[10px] text-text-3">{Math.round(value * 100)}% confidence</span>
+      <span className="font-mono text-[10px] text-text-3">{Math.round(value * 100)}{t('% confidence')}</span>
     </div>
   );
 }
@@ -63,6 +68,38 @@ function ChipList({ items, onPick }: { items: string[]; onPick?: (text: string) 
  * Renders ATLAS's structured response to a natural-language objective.
  * Spec §18: structured outputs, concise reasoning — no chain-of-thought.
  */
+function QuoteOfTheDay() {
+  const { state } = useAtlas();
+  const enabled =
+    state.apiConfig.features.dailyQuote && isApiEnabled(state.apiConfig.enabled, 'quotable');
+  const [quote, setQuote] = useState<{ content: string; author: string } | null>(null);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    if (!enabled) return;
+    let cancelled = false;
+    (async () => {
+      const r = await fetchQuote();
+      if (cancelled) return;
+      if (r.ok && r.data && r.data.content) setQuote(r.data);
+      else setFailed(true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [enabled]);
+
+  if (!enabled || failed || !quote) return null;
+
+  return (
+    <div className="rounded-lg border border-border bg-surface2 px-3.5 py-3">
+      <p className="eyebrow mb-1.5">{t('Quote of the day')}</p>
+      <blockquote className="text-sm italic leading-relaxed text-text-2">“{quote.content}”</blockquote>
+      <p className="mt-1.5 text-xs text-text-3">— {quote.author} · api.quotable.io</p>
+    </div>
+  );
+}
+
 export function IntentResult({
   intent,
   onStartExecution,
@@ -87,7 +124,7 @@ export function IntentResult({
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="eyebrow">ATLAS · {intent.type.replace(/-/g, ' ')}</p>
+          <p className="eyebrow">{t('ATLAS ·')} {intent.type.replace(/-/g, ' ')}</p>
           <p className="mt-1 text-sm font-medium text-text">{summary}</p>
         </div>
         <ConfidenceMeter value={intent.confidence} />
@@ -97,8 +134,9 @@ export function IntentResult({
 
       {briefing && (
         <div className="space-y-3">
+          <QuoteOfTheDay />
           <div>
-            <p className="eyebrow mb-1.5">Today's priorities</p>
+            <p className="eyebrow mb-1.5">{t('Today\'s priorities')}</p>
             <ol className="space-y-1">
               {briefing.priorities.map((p, i) => (
                 <li key={i} className="flex items-start gap-2.5 text-sm">
@@ -111,11 +149,11 @@ export function IntentResult({
             </ol>
           </div>
           <div className="rounded-lg border border-warning/25 bg-warning/[0.06] px-3 py-2">
-            <p className="eyebrow mb-1 text-warning/80">Avoid</p>
+            <p className="eyebrow mb-1 text-warning/80">{t('Avoid')}</p>
             <p className="text-sm text-text-2">{briefing.avoid}</p>
           </div>
           <div className="rounded-lg border border-success/25 bg-success/[0.06] px-3 py-2">
-            <p className="eyebrow mb-1 text-success/80">Opportunity</p>
+            <p className="eyebrow mb-1 text-success/80">{t('Opportunity')}</p>
             <p className="text-sm text-text-2">{briefing.opportunity}</p>
           </div>
         </div>
@@ -136,13 +174,13 @@ export function IntentResult({
             )}
             <span className="inline-flex items-center gap-1.5 text-sm text-text-2">
               <GitBranch className="h-3.5 w-3.5 text-text-3" aria-hidden />
-              {permissionShort(goalPreview.requiredApproval)} · approval required
+              {permissionShort(goalPreview.requiredApproval)} {t('· approval required')}
             </span>
           </div>
 
           {goalPreview.checklist && goalPreview.checklist.length > 0 && (
             <div>
-              <p className="eyebrow mb-1.5">Plan</p>
+              <p className="eyebrow mb-1.5">{t('Plan')}</p>
               <ul className="divide-y divide-border/60 rounded-lg border border-border">
                 {goalPreview.checklist.map((item) => (
                   <ChecklistItem key={item.title} title={item.title} status={item.status} />
@@ -154,7 +192,7 @@ export function IntentResult({
           {!goalPreview.checklist && (
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <p className="eyebrow mb-1.5">Strategy</p>
+                <p className="eyebrow mb-1.5">{t('Strategy')}</p>
                 <ul className="space-y-1">
                   {goalPreview.strategy.map((s) => (
                     <li key={s} className="flex items-center gap-2 text-sm text-text-2">
@@ -165,7 +203,7 @@ export function IntentResult({
                 </ul>
               </div>
               <div>
-                <p className="eyebrow mb-1.5">Actions</p>
+                <p className="eyebrow mb-1.5">{t('Actions')}</p>
                 <ul className="space-y-1">
                   {goalPreview.actions.map((a) => (
                     <li key={a} className="flex items-center gap-2 text-sm text-text-2">
@@ -176,7 +214,7 @@ export function IntentResult({
                 </ul>
               </div>
               <div>
-                <p className="eyebrow mb-1.5">Dependencies</p>
+                <p className="eyebrow mb-1.5">{t('Dependencies')}</p>
                 <ul className="space-y-1">
                   {goalPreview.dependencies.map((d) => (
                     <li key={d} className="text-sm text-text-2">
@@ -186,7 +224,7 @@ export function IntentResult({
                 </ul>
               </div>
               <div>
-                <p className="eyebrow mb-1.5">Risks</p>
+                <p className="eyebrow mb-1.5">{t('Risks')}</p>
                 <ul className="space-y-1">
                   {goalPreview.risks.map((r) => (
                     <li key={r} className="text-sm text-text-2">
@@ -202,7 +240,7 @@ export function IntentResult({
 
       {plan && plan.steps.length > 0 && !goalPreview?.checklist && (
         <div>
-          <p className="eyebrow mb-1.5">Execution plan</p>
+          <p className="eyebrow mb-1.5">{t('Execution plan')}</p>
           <ol className="space-y-1">
             {plan.steps.map((step, i) => (
               <li key={step.id} className="flex items-start gap-2.5 text-sm">
@@ -218,17 +256,17 @@ export function IntentResult({
         <div className="flex flex-wrap items-center gap-2 border-t border-border pt-3">
           {onStartExecution && plan && (
             <Button variant="primary" size="sm" onClick={onStartExecution}>
-              Start execution <ArrowRight className="h-3.5 w-3.5" />
+              {t('Start execution')} <ArrowRight className="h-3.5 w-3.5" />
             </Button>
           )}
           {onCreateGoal && intent.type === 'build-strategy' && (
             <Button variant="subtle" size="sm" onClick={onCreateGoal}>
-              Create this goal
+              {t('Create this goal')}
             </Button>
           )}
           {intent.type === 'create-goal' && onCreateGoal && (
             <Button variant="primary" size="sm" onClick={onCreateGoal}>
-              Create goal
+              {t('Create goal')}
             </Button>
           )}
         </div>

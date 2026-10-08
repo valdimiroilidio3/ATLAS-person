@@ -1,6 +1,7 @@
 // Engine smoke test — run with: npx tsx scripts/test-engine.ts
 // Verifies the run state machine end-to-end without a browser.
 
+import { setLocale } from '../lib/i18n';
 import { seedState } from '../lib/atlas/seed';
 import {
   attachRun,
@@ -15,6 +16,10 @@ import {
   tickRuns,
 } from '../lib/atlas/engine';
 import { sendApprovedPlan } from '../lib/atlas/engine';
+
+// The engine localizes its output — assertions below are written against
+// the English dictionary, so pin the locale before seeding.
+setLocale('en');
 
 let failures = 0;
 function check(name: string, cond: boolean | undefined, extra?: unknown) {

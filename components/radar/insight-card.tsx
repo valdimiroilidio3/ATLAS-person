@@ -9,6 +9,7 @@ import { formatDate, formatTime, isToday } from '@/lib/atlas/format';
 import { deriveNextBestAction } from '@/lib/atlas/engine';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { t } from '@/lib/i18n';
 
 export function InsightCard({ insight, index }: { insight: Insight; index: number }) {
   const { state, openExecutionPreview, openExecutionRun } = useAtlas();
@@ -50,7 +51,7 @@ export function InsightCard({ insight, index }: { insight: Insight; index: numbe
       className="surface p-5 flex flex-col"
     >
       <div className="flex items-center justify-between gap-3">
-        <Badge tone={meta.tone}>{meta.label}</Badge>
+        <Badge tone={meta.tone}>{t(meta.labelKey)}</Badge>
         <span className="font-mono text-[10px] text-text-3">{isToday(insight.createdAt) ? formatTime(insight.createdAt) : formatDate(insight.createdAt)}</span>
       </div>
 
@@ -59,11 +60,11 @@ export function InsightCard({ insight, index }: { insight: Insight; index: numbe
 
       <div className="mt-4 grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg border border-border bg-surface2 p-3">
-          <p className="eyebrow mb-1">Why this matters</p>
+          <p className="eyebrow mb-1">{t('Why this matters')}</p>
           <p className="text-xs leading-relaxed text-text-2">{insight.whyItMatters}</p>
         </div>
         <div className="rounded-lg border border-accent/20 bg-accent/[0.05] p-3">
-          <p className="eyebrow mb-1 text-accent/80">What ATLAS recommends</p>
+          <p className="eyebrow mb-1 text-accent/80">{t('What ATLAS recommends')}</p>
           <p className="text-xs leading-relaxed text-text">{insight.recommendation}</p>
         </div>
       </div>

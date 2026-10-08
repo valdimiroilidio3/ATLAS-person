@@ -4,6 +4,7 @@ import { useEffect, useRef, type ReactNode } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { t } from '@/lib/i18n';
 
 export function Modal({
   open,
@@ -91,7 +92,7 @@ export function ModalHeader({
       {onClose && (
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t('Close')}
           className="rounded-lg p-1.5 text-text-3 transition-colors hover:bg-white/[0.06] hover:text-text"
         >
           <X className="h-4 w-4" />

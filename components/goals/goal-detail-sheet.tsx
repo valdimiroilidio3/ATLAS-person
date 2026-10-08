@@ -21,6 +21,7 @@ import { SlideOver } from '@/components/ui/slide-over';
 import { Badge } from '@/components/ui/badge';
 import { ProgressBar } from '@/components/ui/progress';
 import { useAtlas } from '@/lib/atlas/store';
+import { t } from '@/lib/i18n';
 
 const GOAL_STATUS_TONE: Record<Goal['status'], 'success' | 'warning' | 'error' | 'accent'> = {
   'on-track': 'success',
@@ -57,7 +58,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
           {/* Header stats */}
           <div className="grid grid-cols-3 gap-2.5">
             <div className="rounded-lg border border-border bg-surface p-3.5">
-              <p className="eyebrow">Current</p>
+              <p className="eyebrow">{t('Current')}</p>
               <p className="mt-1.5 text-lg font-semibold tabular">
                 {goal.unit === 'currency'
                   ? formatCurrency(goal.current, goal.currency ?? 'EUR')
@@ -65,7 +66,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-3.5">
-              <p className="eyebrow">Target</p>
+              <p className="eyebrow">{t('Target')}</p>
               <p className="mt-1.5 text-lg font-semibold tabular">
                 {goal.unit === 'currency'
                   ? formatCurrency(goal.target, goal.currency ?? 'EUR')
@@ -73,21 +74,21 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
               </p>
             </div>
             <div className="rounded-lg border border-border bg-surface p-3.5">
-              <p className="eyebrow">Deadline</p>
-              <p className="mt-1.5 text-lg font-semibold tabular">{daysLeft(goal.deadline)}d</p>
+              <p className="eyebrow">{t('Deadline')}</p>
+              <p className="mt-1.5 text-lg font-semibold tabular">{t('{count}d', { count: daysLeft(goal.deadline) })}</p>
             </div>
           </div>
 
           <div>
             <div className="mb-1.5 flex items-center justify-between text-xs">
-              <span className="text-text-3">{progress}% complete</span>
+              <span className="text-text-3">{progress}{t('% complete')}</span>
               <Badge tone={GOAL_STATUS_TONE[goal.status]}>{goal.status.replace('-', ' ').toUpperCase()}</Badge>
             </div>
             <ProgressBar value={progress} tone={goal.status === 'behind' ? 'error' : goal.status === 'at-risk' ? 'warning' : 'accent'} />
             <p className="mt-2 text-xs text-text-3">
               <Calendar className="mr-1 inline h-3 w-3" aria-hidden />
               {formatDateLong(goal.deadline)}
-              {linkedProject && ` · linked to ${linkedProject.name} (${deriveProjectProgress(linkedProject)}%)`}
+              {linkedProject && t('· linked to {project} ({progress}%)', { project: linkedProject.name, progress: deriveProjectProgress(linkedProject) })}
             </p>
           </div>
 
@@ -120,7 +121,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
               {tab === 'overview' && (
                 <div className="space-y-5">
                   <div>
-                    <p className="eyebrow mb-2">ATLAS strategy</p>
+                    <p className="eyebrow mb-2">{t('ATLAS strategy')}</p>
                     <ul className="space-y-1.5">
                       {goal.strategy.map((s) => (
                         <li key={s} className="flex items-center gap-2 text-sm text-text-2">
@@ -131,7 +132,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
                     </ul>
                   </div>
                   <div>
-                    <p className="eyebrow mb-2">Assumptions · user-defined</p>
+                    <p className="eyebrow mb-2">{t('Assumptions · user-defined')}</p>
                     <ul className="space-y-1.5">
                       {goal.assumptions.map((a) => (
                         <li key={a} className="flex items-center gap-2 text-sm text-text-2">
@@ -142,7 +143,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
                     </ul>
                   </div>
                   <div>
-                    <p className="eyebrow mb-2">Next actions</p>
+                    <p className="eyebrow mb-2">{t('Next actions')}</p>
                     <ul className="space-y-1.5">
                       {goal.nextActions.map((a) => (
                         <li key={a} className="flex items-center gap-2 text-sm text-text">
@@ -153,7 +154,7 @@ export function GoalDetailSheet({ goal, onClose }: { goal: Goal | null; onClose:
                     </ul>
                   </div>
                   <div className="rounded-lg border border-accent/25 bg-accent/[0.06] p-4">
-                    <p className="eyebrow mb-1.5 text-accent/80">ATLAS recommends</p>
+                    <p className="eyebrow mb-1.5 text-accent/80">{t('ATLAS recommends')}</p>
                     <p className="text-sm leading-relaxed text-text">{goal.aiRecommendation}</p>
                   </div>
                 </div>
