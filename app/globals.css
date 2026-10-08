@@ -1,0 +1,143 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #0a0a0b;
+  --bg-elevated: #0e0e10;
+  --surface: #141416;
+  --surface-2: #1a1a1d;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text: #f4f4f2;
+  --text-2: #a6a6a2;
+  --text-3: #71716d;
+  --accent: #e9b44c;
+  --accent-strong: #f4c367;
+  --accent-dim: rgba(233, 180, 76, 0.14);
+  --success: #4cc38a;
+  --error: #e5655e;
+  --warning: #e9b44c;
+  --font-sans: 'Inter';
+  --font-mono: 'JetBrains Mono';
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  color-scheme: dark;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'ss01' on, 'cv11' on;
+}
+
+/* A single, barely-there warm light at the top of the canvas. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(1000px 520px at 50% -160px, rgba(233, 180, 76, 0.045), transparent 70%);
+}
+
+::selection {
+  background: rgba(233, 180, 76, 0.92);
+  color: #171004;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
+}
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  border: 3px solid var(--bg);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+:focus-visible {
+  outline: 2px solid rgba(233, 180, 76, 0.75);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  .eyebrow {
+    @apply font-mono text-[11px] uppercase tracking-[0.18em] text-text-3;
+  }
+
+  .display {
+    @apply font-semibold tracking-[-0.035em] leading-[1.05];
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .kbd {
+    @apply inline-flex items-center justify-center rounded-md border border-border bg-surface2 px-1.5 py-0.5 font-mono text-[11px] text-text-2;
+  }
+
+  .hairline {
+    @apply border-t border-border;
+  }
+
+  .surface {
+    @apply rounded-lg border border-border bg-surface shadow-card;
+  }
+
+  .surface-interactive {
+    @apply surface transition-colors duration-200 hover:border-border-strong hover:bg-[#17171a];
+  }
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.45; transform: scale(0.82); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.animate-dot-pulse {
+  animation: dot-pulse 1.6s ease-in-out infinite;
+}
+
+.skeleton {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
